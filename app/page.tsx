@@ -1,7 +1,7 @@
-import { SignIn, SignInWithGitHub, SignInWithGoogle } from "@/components/sign-in";
+import { SignIn } from "@/components/sign-in";
 import { SignOut } from "@/components/signout-button";
 import UserAvatar from "@/components/user-avatar";
-import { Sign } from "crypto";
+/* import { Sign } from "crypto"; */
 import Image from "next/image";
 
 export default function Home() {
