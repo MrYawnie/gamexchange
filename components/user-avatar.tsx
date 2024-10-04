@@ -20,6 +20,7 @@ export default async function UserAvatar() {
       <div>
       <h2 style={{ margin: 0 }}>{session.user.name}</h2>
       <p style={{ margin: 0 }}>{session.user.email}</p>
+      <p style={{ margin: 0 }}>{session.user.bggUserName}</p>
       </div>
     </div>
   )
