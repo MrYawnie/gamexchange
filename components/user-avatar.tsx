@@ -7,12 +7,20 @@ export default async function UserAvatar() {
   if (!session || !session.user) return null
 
   return (
-    <div>
-      <h2>{session.user.name}</h2>
-      <p>{session.user.email}</p>
+    <div style={{ display: 'flex', alignItems: 'center' }}>
       {session.user.image && (
-        <Image src={session.user.image} alt="User Avatar" width={50} height={50} />
+      <Image
+        src={session.user.image}
+        alt="User Avatar"
+        width={50}
+        height={50}
+        style={{ borderRadius: '50%', marginRight: '10px' }}
+      />
       )}
+      <div>
+      <h2 style={{ margin: 0 }}>{session.user.name}</h2>
+      <p style={{ margin: 0 }}>{session.user.email}</p>
+      </div>
     </div>
   )
 }
