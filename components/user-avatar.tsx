@@ -32,7 +32,7 @@ export async function BGGUser() {
   if (!session || !session.user) return null
 
   return (
-    <div style={{ backgroundColor: 'gray', padding: '10px', borderRadius: '5px', display: 'flex' }}>
+    <div style={{ backgroundColor: '#E7CD78', padding: '10px', borderRadius: '5px', display: 'flex' }}>
       <Image
       src="https://cf.geekdo-static.com/images/logos/navbar-logo-bgg-b2.svg"
       alt="User Avatar"
