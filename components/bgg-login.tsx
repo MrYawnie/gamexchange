@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
+import { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -14,68 +14,34 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-const API_SERVER_URL = process.env.NEXT_PUBLIC_API_SERVER_URL;
-
-export default function BGGLoginDialog() {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+const BGGLoginForm = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
   const [isOpen, setIsOpen] = useState(false)
 
-  const handleLogin = async (event: React.FormEvent<HTMLFormElement>): Promise<boolean> => {
-    event.preventDefault();
-    const credentials = { username, password };
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
 
     try {
-      // Encrypt credentials using the server-side API route
-      const response = await fetch('/api/encrypt', {
+      const response = await fetch('/api/user/bgg-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ credentials }),
+        body: JSON.stringify({ username, password }),
       });
 
-      const { iv, encryptedData } = await response.json();
+      const data = await response.json();
 
-      // Send encrypted credentials to the login endpoint
-      const loginResponse = await fetch(`${API_SERVER_URL}/bgg/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ iv, encryptedData }),
-      });
-
-      if (loginResponse.status === 200) {
-        const responseData = await loginResponse.json();
-        const bggUsername = responseData.bggusername;
-
-        // Save the BGG username to the user's account
-        const saveResponse = await fetch('/api/user/bgg-login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ bggUsername }),
-        });
-
-        if (saveResponse.status === 200) {
-          console.log('BGG username saved successfully:', bggUsername);
-          setIsOpen(false);
-          return true;
-        } else {
-          const data = await saveResponse.json();
-          console.log('Failed to save BGG username:', data.error);
-          return false;
-        }
+      if (response.ok) {
+        setMessage(`Login successful! BGG Username: ${data.bggUsername}`);
+        setIsOpen(false);
       } else {
-        const data = await loginResponse.json();
-        console.log('Login failed:', data);
-        return false;
+        setMessage(`Login failed: ${data.error}`);
       }
-    } catch (err) {
-      console.error('Error during login:', err);
-      return false;
+    } catch (error) {
+      setMessage('An error occurred during login.');
     }
   };
 
@@ -86,12 +52,12 @@ export default function BGGLoginDialog() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>User Login</DialogTitle>
+          <DialogTitle>BoardGameGeek Login</DialogTitle>
           <DialogDescription>
-            Enter your credentials to access your account.
+            Link your BoardGameGeek Account to your profile.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={(event) => handleLogin(event)}>
+        <form onSubmit={handleLogin}>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="username" className="text-right">
@@ -102,6 +68,7 @@ export default function BGGLoginDialog() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="col-span-3"
+                required
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
@@ -114,6 +81,7 @@ export default function BGGLoginDialog() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="col-span-3"
+                required
               />
             </div>
           </div>
@@ -121,7 +89,10 @@ export default function BGGLoginDialog() {
             <Button type="submit">Login</Button>
           </DialogFooter>
         </form>
+        {message && <p>{message}</p>}
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
+
+export default BGGLoginForm;
