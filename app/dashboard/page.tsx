@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import BGGLoginDialog from "@/components/bgg-login";
 import { SignIn } from "@/components/sign-in";
 import { SignOut } from "@/components/signout-button";
-import UserAvatar from "@/components/user-avatar";
+import UserAvatar, { BGGUser } from "@/components/user-avatar";
 
 export default async function Page() {
   const session = await auth();
@@ -18,12 +18,11 @@ export default async function Page() {
             {!session.user.bggUserName ? (
             <BGGLoginDialog />
             ) : (
-            <span><b>BGG user:</b> {session.user.bggUserName}</span>
+            <BGGUser />
             )}
         </div>
         <div className="flex gap-4 items-center flex-col sm:flex-row">
           <UserAvatar />
-          {/* <BGGUser /> */}
         </div>
       </main>
     </div>

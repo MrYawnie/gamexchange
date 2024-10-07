@@ -24,7 +24,7 @@ const BGGLoginForm = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch('/api/user/bgg-login', {
+      const response = await fetch('/api/user/bgg/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

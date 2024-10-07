@@ -25,3 +25,22 @@ export default async function UserAvatar() {
     </div>
   )
 }
+
+export async function BGGUser() {
+  const session = await auth()
+
+  if (!session || !session.user) return null
+
+  return (
+    <div style={{ backgroundColor: 'gray', padding: '10px', borderRadius: '5px', display: 'flex' }}>
+      <Image
+      src="https://cf.geekdo-static.com/images/logos/navbar-logo-bgg-b2.svg"
+      alt="User Avatar"
+      width={50}
+      height={50}
+      style={{ marginRight: '10px'}}
+      />
+      <p style={{ color: 'white' }}>{session.user.bggUserName}</p>
+    </div>
+  )
+}
