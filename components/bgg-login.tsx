@@ -36,6 +36,22 @@ const BGGLoginForm = () => {
 
       if (response.ok) {
         setMessage(`Login successful! BGG Username: ${data.bggUsername}`);
+
+        try {
+          const gamesResponse = await fetch('/api/user/bgg/collection', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username: data.bggUsername }),
+          });
+
+          const gamesData = await gamesResponse.json();
+          console.log('Fetched games data:', gamesData);
+        } catch (error) {
+          setMessage('An error occurred while fetching your collection.');
+        }
+
         setIsOpen(false);
       } else {
         setMessage(`Login failed: ${data.error}`);

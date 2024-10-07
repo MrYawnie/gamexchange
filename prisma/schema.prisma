@@ -33,11 +33,12 @@ model UserGame {
   user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   game   GameData @relation(fields: [gameId], references: [id], onDelete: Cascade)
 
-  @@index([userId, gameId], name: "user_game_idx")
+  @@unique([userId, gameId])
 }
 
 model GameData {
   id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  gameId        String      @unique
   name          String
   yearPublished Int?
   image         String?

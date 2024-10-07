@@ -21,60 +21,67 @@ export async function POST(req: Request) {
         for (const item of items) {
             const gameId = item.$.objectid;
             const gameData = {
-                id: gameId,
+                gameId: gameId,
                 name: item.name[0]._,
-                yearPublished: item.yearpublished?.[0] || null,
+                yearPublished: item.yearpublished?.[0] ? parseInt(item.yearpublished[0], 10) : null,
                 image: item.image?.[0] || null,
                 thumbnail: item.thumbnail?.[0] || null,
                 stats: {
-                    minPlayers: item.stats[0].$.minplayers || null,
-                    minPlaytime: item.stats[0].$.minplaytime || null,
-                    maxPlaytime: item.stats[0].$.maxplaytime || null,
-                    playingTime: item.stats[0].$.playingtime || null
+                    minPlayers: item.stats[0].$.minplayers ? parseInt(item.stats[0].$.minplayers, 10) : null,
+                    minPlaytime: item.stats[0].$.minplaytime ? parseInt(item.stats[0].$.minplaytime, 10) : null,
+                    maxPlaytime: item.stats[0].$.maxplaytime ? parseInt(item.stats[0].$.maxplaytime, 10) : null,
+                    playingTime: item.stats[0].$.playingtime ? parseInt(item.stats[0].$.playingtime, 10) : null
                 },
                 ratings: {
-                    usersRated: item.stats[0].rating[0].usersrated?.[0]?.$.value || null,
-                    average: item.stats[0].rating[0].average?.[0]?.$.value || null,
-                    bayesAverage: item.stats[0].rating[0].bayesaverage?.[0]?.$.value || null,
-                    stddev: item.stats[0].rating[0].stddev?.[0]?.$.value || null,
-                    median: item.stats[0].rating[0].median?.[0]?.$.value || null,
+                    usersRated: item.stats[0].rating[0].usersrated?.[0]?.$.value ? parseInt(item.stats[0].rating[0].usersrated[0].$.value, 10) : null,
+                    average: item.stats[0].rating[0].average?.[0]?.$.value ? parseFloat(item.stats[0].rating[0].average[0].$.value) : null,
+                    bayesAverage: item.stats[0].rating[0].bayesaverage?.[0]?.$.value ? parseFloat(item.stats[0].rating[0].bayesaverage[0].$.value) : null,
+                    stddev: item.stats[0].rating[0].stddev?.[0]?.$.value ? parseFloat(item.stats[0].rating[0].stddev[0].$.value) : null,
+                    median: item.stats[0].rating[0].median?.[0]?.$.value ? parseFloat(item.stats[0].rating[0].median[0].$.value) : null,
                 }
             };
 
             // Check if the game exists in the GameData collection
-            const existingGame = await prisma.gameData.findUnique({
-                where: { id: gameId },
+            await prisma.gameData.upsert({
+                where: { gameId: gameData.gameId },
+                create: gameData,
+                update: gameData
             });
 
-            if (!existingGame) {
-                // Insert new game into the GameData collection if it doesn't exist
-                await prisma.gameData.create({
-                    data: gameData
-                });
-            }
+            // Fetch the user by bggUserName
+            const user = await prisma.user.findUnique({
+                where: { bggUserName: username }
+            });
 
-            // Link the game to the user in the UserGame collection
-            const existingUserGame = await prisma.userGame.findUnique({
-                where: {
-                    userId_gameId: {
-                        userId: username,  // Adjust this if you use a different field for username
-                        gameId: gameId
+            const game = await prisma.gameData.findUnique({
+                where: { gameId: gameId }
+            });
+
+            if (user && game) {
+                // Check if the game exists in the UserGame collection
+                const existingUserGame = await prisma.userGame.findUnique({
+                    where: {
+                        userId_gameId: {
+                            userId: user.id,  // Use the user's ObjectId
+                            gameId: game.id     // This should be the gameId (ObjectId)
+                        }
                     }
+                });
+
+                if (!existingUserGame) {
+                    await prisma.userGame.create({
+                        data: {
+                            user: { connect: { bggUserName: username } }, // Assuming you're using bggUserName
+                            game: { connect: { gameId: gameId } }
+                        }
+                    });
                 }
-            });
-
-            if (!existingUserGame) {
-                await prisma.userGame.create({
-                    data: {
-                        user: { connect: { bggUserName: username } }, // Assuming you're using bggUserName
-                        game: { connect: { id: gameId } }
-                    }
-                });
             }
-        }
 
+            // return NextResponse.json({ message: 'Games fetched and saved successfully.' }, { status: 200 });
+
+        }
         return NextResponse.json({ message: 'Games fetched and saved successfully.' }, { status: 200 });
-        
     } catch (error) {
         console.error('Error fetching or parsing data:', error);
         return NextResponse.json({ error: 'Failed to fetch data.' }, { status: 500 });
