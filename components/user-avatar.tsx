@@ -1,4 +1,4 @@
-import { auth } from "../auth"
+import { auth } from "@/auth"
 import Image from 'next/image'
 
 export default async function UserAvatar() {

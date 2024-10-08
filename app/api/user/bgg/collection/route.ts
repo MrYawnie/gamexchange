@@ -2,18 +2,27 @@ import { NextResponse } from 'next/server';
 import axios from 'axios';
 import xml2js from 'xml2js';
 import { prisma } from '@/prisma';
+import { auth } from '@/auth';
 
 export async function POST(req: Request) {
+    const session = await auth();
+    const sessionUser = session?.user;
     const { username } = await req.json(); // Extract username from the request body
 
     if (!username) {
         return NextResponse.json({ error: 'Username is required' }, { status: 400 });
     }
 
-    const url = `https://boardgamegeek.com/xmlapi2/collection?username=${username}`;
+    const url = `https://boardgamegeek.com/xmlapi2/collection?username=${sessionUser.bggUserName}&stats=1`;
 
     try {
         const response = await axios.get(url);
+
+        if (response.status === 202) {
+            return NextResponse.json({ message: 'BGG API is processing. Retry in a few minutes.' }, { status:
+            202 });
+        }
+
         const parser = new xml2js.Parser();
         const result = await parser.parseStringPromise(response.data);
         const items = result.items.item;
@@ -41,8 +50,8 @@ export async function POST(req: Request) {
                 }
             };
 
-            // Check if the game exists in the GameData collection
-            await prisma.gameData.upsert({
+            // Upsert game data in the GameData collection
+            const game = await prisma.gameData.upsert({
                 where: { gameId: gameData.gameId },
                 create: gameData,
                 update: gameData
@@ -50,15 +59,13 @@ export async function POST(req: Request) {
 
             // Fetch the user by bggUserName
             const user = await prisma.user.findUnique({
-                where: { bggUserName: username }
-            });
-
-            const game = await prisma.gameData.findUnique({
-                where: { gameId: gameId }
+                where: { bggUserName: sessionUser.bggUserName }
             });
 
             if (user && game) {
                 // Check if the game exists in the UserGame collection
+                console.log('User:', user);
+                console.log('Game:', game);
                 const existingUserGame = await prisma.userGame.findUnique({
                     where: {
                         userId_gameId: {
@@ -71,8 +78,8 @@ export async function POST(req: Request) {
                 if (!existingUserGame) {
                     await prisma.userGame.create({
                         data: {
-                            user: { connect: { bggUserName: username } }, // Assuming you're using bggUserName
-                            game: { connect: { gameId: gameId } }
+                            user: { connect: { id: user.id } }, // Assuming you're using bggUserName
+                            game: { connect: { id: game.id } }
                         }
                     });
                 }
