@@ -9,6 +9,10 @@ export async function POST(req: Request) {
     const sessionUser = session?.user;
     const { username } = await req.json(); // Extract username from the request body
 
+    if (!sessionUser) {
+        return NextResponse.json({ error: 'User session not found' }, { status: 401 });
+    }
+
     if (!username) {
         return NextResponse.json({ error: 'Username is required' }, { status: 400 });
     }
@@ -70,7 +74,7 @@ export async function POST(req: Request) {
 
             // Fetch the user by bggUserName
             const user = await prisma.user.findUnique({
-                where: { bggUserName: sessionUser?.bggUserName }
+                where: { bggUserName: sessionUser.bggUserName }
             });
 
             if (user && game) {
