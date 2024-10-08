@@ -39,6 +39,7 @@ model UserGame {
 model GameData {
   id            String      @id @default(auto()) @map("_id") @db.ObjectId
   gameId        String      @unique
+  objectType    String
   name          String
   yearPublished Int?
   image         String?

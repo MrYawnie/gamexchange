@@ -13,24 +13,35 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Username is required' }, { status: 400 });
     }
 
-    const url = `https://boardgamegeek.com/xmlapi2/collection?username=${sessionUser.bggUserName}&stats=1`;
+    // URLs for both board games and expansions
+    const boardGamesUrl = `https://boardgamegeek.com/xmlapi2/collection?username=${sessionUser.bggUserName}&stats=1&excludesubtype=boardgameexpansion`;
+    const expansionsUrl = `https://boardgamegeek.com/xmlapi2/collection?username=${sessionUser.bggUserName}&stats=1&subtype=boardgameexpansion`;
 
     try {
-        const response = await axios.get(url);
-
-        if (response.status === 202) {
-            return NextResponse.json({ message: 'BGG API is processing. Retry in a few minutes.' }, { status:
-            202 });
+        // Fetch data for board games
+        const boardGamesResponse = await axios.get(boardGamesUrl);
+        if (boardGamesResponse.status === 202) {
+            return NextResponse.json({ message: 'BGG API is processing. Retry in a few minutes.' }, { status: 202 });
         }
+        const boardGamesData = await parseXML(boardGamesResponse.data);
 
-        const parser = new xml2js.Parser();
-        const result = await parser.parseStringPromise(response.data);
-        const items = result.items.item;
+        // Fetch data for expansions
+        const expansionsResponse = await axios.get(expansionsUrl);
+        if (expansionsResponse.status === 202) {
+            return NextResponse.json({ message: 'BGG API is processing. Retry in a few minutes.' }, { status: 202 });
+        }
+        const expansionsData = await parseXML(expansionsResponse.data);
 
-        for (const item of items) {
+        // Combine both board games and expansions
+        const combinedItems = [...boardGamesData.items.item, ...expansionsData.items.item];
+
+        for (const item of combinedItems) {
             const gameId = item.$.objectid;
+            const objectType = item.$.subtype;
+
             const gameData = {
                 gameId: gameId,
+                objectType: objectType,
                 name: item.name[0]._,
                 yearPublished: item.yearpublished?.[0] ? parseInt(item.yearpublished[0], 10) : null,
                 image: item.image?.[0] || null,
@@ -59,13 +70,11 @@ export async function POST(req: Request) {
 
             // Fetch the user by bggUserName
             const user = await prisma.user.findUnique({
-                where: { bggUserName: sessionUser.bggUserName }
+                where: { bggUserName: sessionUser?.bggUserName }
             });
 
             if (user && game) {
                 // Check if the game exists in the UserGame collection
-                console.log('User:', user);
-                console.log('Game:', game);
                 const existingUserGame = await prisma.userGame.findUnique({
                     where: {
                         userId_gameId: {
@@ -84,13 +93,17 @@ export async function POST(req: Request) {
                     });
                 }
             }
-
-            // return NextResponse.json({ message: 'Games fetched and saved successfully.' }, { status: 200 });
-
         }
-        return NextResponse.json({ message: 'Games fetched and saved successfully.' }, { status: 200 });
+
+        return NextResponse.json({ message: 'Games and expansions fetched and saved successfully.' }, { status: 200 });
     } catch (error) {
         console.error('Error fetching or parsing data:', error);
         return NextResponse.json({ error: 'Failed to fetch data.' }, { status: 500 });
     }
+}
+
+// Helper function to parse XML
+async function parseXML(xmlData: string) {
+    const parser = new xml2js.Parser();
+    return await parser.parseStringPromise(xmlData);
 }

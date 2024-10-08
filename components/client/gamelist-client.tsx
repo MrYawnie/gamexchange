@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import GameCard from '../game-card';
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
 
 interface Game {
@@ -14,15 +14,17 @@ interface Game {
 
 interface GameListProps {
     games: Game[];
+    errorMessage: string | null; // Accept errorMessage prop
 }
 
-export default function GameList({ games }: GameListProps) {
+export default function GameList({ games, errorMessage }: GameListProps) {
     const [retryMessage, setRetryMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
     const refetchGames = async () => {
         setIsLoading(true);
+        setRetryMessage(null); // Reset the retry message on refetch
         try {
             const response = await fetch('/api/user/bgg/collection', {
                 method: 'POST',
@@ -34,11 +36,9 @@ export default function GameList({ games }: GameListProps) {
 
             if (response.status === 202) {
                 setRetryMessage('BGG API is processing. Retry will happen automatically after 5 minutes.');
-                // Optionally implement auto retry logic on client side, but this example assumes server-side retry handling.
             } else if (response.status === 200) {
                 setRetryMessage('Games re-fetched successfully.');
-                // You can manually trigger a revalidation of the data here (if necessary)
-                router.refresh();
+                router.refresh(); // Trigger a revalidation of the data
             } else {
                 const errorData = await response.json();
                 setRetryMessage(`Error: ${errorData.error}`);
@@ -56,11 +56,12 @@ export default function GameList({ games }: GameListProps) {
             <Button onClick={refetchGames} style={{ marginBottom: '16px' }} disabled={isLoading}>
                 {isLoading ? 'Refreshing Games...' : 'Refresh Games'}
             </Button>
-            {retryMessage && <p>{retryMessage}</p>}
+            {errorMessage && <p className="text-red-500">{errorMessage}</p>} {/* Display error message here */}
+            {retryMessage && <p className="text-red-500">{retryMessage}</p>}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
                 {games.length > 0 ? (
                     games.map((userGame) => (
-                        <GameCard key={userGame.gameId} game={userGame.game} /> // Use GameCard component
+                        <GameCard key={userGame.gameId} game={userGame.game} />
                     ))
                 ) : (
                     <p>No games found.</p>
