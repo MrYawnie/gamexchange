@@ -3,7 +3,7 @@ import BGGLoginDialog from "@/components/bgg-login";
 import GameLibrary from "@/components/server/gamelist-server";
 import { SignIn } from "@/components/sign-in";
 import { SignOut } from "@/components/signout-button";
-import UserAvatar, { BGGUser } from "@/components/user-avatar";
+import { BGGUser } from "@/components/user-avatar";
 
 export default async function Page() {
   const session = await auth();

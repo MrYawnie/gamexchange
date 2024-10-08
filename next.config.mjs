@@ -13,6 +13,10 @@ const nextConfig = {
             {
                 protocol: 'https',
                 hostname: 'cf.geekdo-static.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'cf.geekdo-images.com',
             }
         ],
     },

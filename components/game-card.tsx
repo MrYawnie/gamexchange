@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Clock, Users, Star } from "lucide-react"
+import Image from "next/image"
 
 interface GameData {
     thumbnail: string
@@ -25,10 +26,12 @@ export default function Component(props: { game: GameData }) {
     return (
         <Card className="w-[300px] overflow-hidden">
             <div className="aspect-[16/9] relative">
-                <img
-                    src={game.thumbnail}
+                <Image
+                    src={game.image}
                     alt={`${game.name} thumbnail`}
                     className="object-cover w-full h-full"
+                    width={300} // Set the appropriate width
+                    height={300} // Set the appropriate height
                 />
                 <div className="absolute top-0 left-0 p-2">
                     <Badge

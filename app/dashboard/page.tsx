@@ -1,6 +1,5 @@
 import { auth } from "@/auth";
 import BGGLoginDialog from "@/components/bgg-login";
-import GameLibrary from "@/components/server/gamelist-server";
 import { SignIn } from "@/components/sign-in";
 import { SignOut } from "@/components/signout-button";
 import UserAvatar, { BGGUser } from "@/components/user-avatar";

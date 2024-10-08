@@ -44,6 +44,7 @@ export default function GameList({ games, errorMessage }: GameListProps) {
                 setRetryMessage(`Error: ${errorData.error}`);
             }
         } catch (error) {
+            console.error('Error fetching games:', error);
             setRetryMessage('Failed to fetch games. Please try again.');
         } finally {
             setIsLoading(false);

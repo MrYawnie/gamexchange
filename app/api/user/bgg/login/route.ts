@@ -57,6 +57,7 @@ export async function POST(req: NextRequest) {
           });
           return NextResponse.json({ bggUsername: cookieValue }, { status: 200 });
         } catch (error) {
+          console.log('Error saving BGG username:', error);
           return NextResponse.json({ error: 'Failed to save BGG username' }, { status: 500 });
         }
       } else {
@@ -66,6 +67,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to authenticate with BGG' }, { status: bggLoginResponse.status });
     }
   } catch (error) {
+    console.log('Error during BGG login:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

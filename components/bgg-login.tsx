@@ -49,6 +49,7 @@ const BGGLoginForm = () => {
           const gamesData = await gamesResponse.json();
           console.log('Fetched games data:', gamesData);
         } catch (error) {
+          console.error('Error fetching games:', error);
           setMessage('An error occurred while fetching your collection.');
         }
 
@@ -57,6 +58,7 @@ const BGGLoginForm = () => {
         setMessage(`Login failed: ${data.error}`);
       }
     } catch (error) {
+      console.error('Error logging in:', error);
       setMessage('An error occurred during login.');
     }
   };
