@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import GameCard from '../game-card';
+import { Button } from "@/components/ui/button"
 import { useRouter } from 'next/navigation';
 
 interface Game {
@@ -51,12 +52,12 @@ export default function GameList({ games }: GameListProps) {
 
     return (
         <div>
-            <h1>Game Library</h1>
-            <button onClick={refetchGames} style={{ marginBottom: '16px' }} disabled={isLoading}>
+            <h1 className="text-center mb-4 text-2xl">Game Library</h1>
+            <Button onClick={refetchGames} style={{ marginBottom: '16px' }} disabled={isLoading}>
                 {isLoading ? 'Refreshing Games...' : 'Refresh Games'}
-            </button>
+            </Button>
             {retryMessage && <p>{retryMessage}</p>}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
                 {games.length > 0 ? (
                     games.map((userGame) => (
                         <GameCard key={userGame.gameId} game={userGame.game} /> // Use GameCard component
