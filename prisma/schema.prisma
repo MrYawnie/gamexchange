@@ -8,6 +8,11 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum ObjectType {
+  boardgame
+  boardgameexpansion
+}
+
 model User {
   id            String     @id @default(auto()) @map("_id") @db.ObjectId
   name          String?
@@ -39,11 +44,11 @@ model UserGame {
 model GameData {
   id            String      @id @default(auto()) @map("_id") @db.ObjectId
   gameId        String      @unique
-  objectType    String
+  objectType    ObjectType
   name          String
   yearPublished Int?
-  image         String?
-  thumbnail     String?
+  image         String
+  thumbnail     String
   stats         GameStats // Embedded type for game stats
   ratings       GameRatings // Embedded type for game ratings
   UserGame      UserGame[]

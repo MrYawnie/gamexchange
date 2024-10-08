@@ -3,21 +3,7 @@ import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Clock, Users, Star } from "lucide-react"
 import Image from "next/image"
-
-interface GameData {
-    thumbnail: string
-    name: string
-    yearPublished: number
-    stats: {
-        minPlayers: number
-        playingTime: number
-    }
-    ratings: {
-        average: number
-        usersRated: number
-    }
-    objectType: "boardgame" | "boardgameexpansion"
-}
+import { GameData } from "@/types/gameTypes"
 
 export default function Component(props: { game: GameData }) {
     const { game } = props
@@ -63,7 +49,7 @@ export default function Component(props: { game: GameData }) {
                             <TooltipTrigger asChild>
                                 <div className="flex items-center gap-1">
                                     <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                    <span className="font-medium">{game.ratings.average.toFixed(1)}</span>
+                                    <span className="font-medium">{game.ratings.average?.toFixed(1)}</span>
                                 </div>
                             </TooltipTrigger>
                             <TooltipContent>
@@ -71,7 +57,7 @@ export default function Component(props: { game: GameData }) {
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
-                    <span>{game.ratings.usersRated.toLocaleString()} ratings</span>
+                    <span>{game.ratings.usersRated?.toLocaleString()} ratings</span>
                 </div>
             </CardContent>
         </Card>

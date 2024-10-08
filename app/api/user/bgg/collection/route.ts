@@ -48,8 +48,8 @@ export async function POST(req: Request) {
                 objectType: objectType,
                 name: item.name[0]._,
                 yearPublished: item.yearpublished?.[0] ? parseInt(item.yearpublished[0], 10) : null,
-                image: item.image?.[0] || null,
-                thumbnail: item.thumbnail?.[0] || null,
+                image: item.image?.[0],
+                thumbnail: item.thumbnail?.[0],
                 stats: {
                     minPlayers: item.stats[0].$.minplayers ? parseInt(item.stats[0].$.minplayers, 10) : null,
                     minPlaytime: item.stats[0].$.minplaytime ? parseInt(item.stats[0].$.minplaytime, 10) : null,
@@ -74,7 +74,7 @@ export async function POST(req: Request) {
 
             // Fetch the user by bggUserName
             const user = await prisma.user.findUnique({
-                where: { bggUserName: sessionUser.bggUserName }
+                where: { id: sessionUser.id }
             });
 
             if (user && game) {

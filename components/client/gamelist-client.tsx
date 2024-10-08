@@ -4,18 +4,7 @@ import React, { useState } from 'react';
 import GameCard from '../game-card';
 import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
-
-interface Game {
-    gameId: string;
-    game: {
-        name: string;
-    };
-}
-
-interface GameListProps {
-    games: Game[];
-    errorMessage: string | null; // Accept errorMessage prop
-}
+import { GameListProps } from '@/types/gameTypes';
 
 export default function GameList({ games, errorMessage }: GameListProps) {
     const [retryMessage, setRetryMessage] = useState<string | null>(null);

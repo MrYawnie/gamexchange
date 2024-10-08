@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
 
         try {
           await prisma.user.update({
-            where: { email: session.user.email },
+            where: { email: session.user.email as string },
             data: { bggUserName: cookieValue },
           });
           return NextResponse.json({ bggUsername: cookieValue }, { status: 200 });
