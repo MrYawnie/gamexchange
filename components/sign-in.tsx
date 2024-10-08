@@ -1,6 +1,6 @@
 
 import { signIn } from "@/auth"
-import { auth } from "../auth"
+import { auth } from "@/auth"
  
 export async function SignIn() {
     const session = auth()
