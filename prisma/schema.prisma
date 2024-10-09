@@ -13,6 +13,21 @@ enum ObjectType {
   boardgameexpansion
 }
 
+model Loan {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  borrowerId String    @db.ObjectId // ID of the user borrowing the game
+  lenderId   String    @db.ObjectId // ID of the user lending the game
+  userGameId String    @db.ObjectId // References the UserGame being loaned
+  startDate  DateTime  @default(now())
+  endDate    DateTime?
+
+  borrower User     @relation("BorrowerRelation", fields: [borrowerId], references: [id], onDelete: Cascade)
+  lender   User     @relation("LenderRelation", fields: [lenderId], references: [id], onDelete: Cascade)
+  userGame UserGame @relation(fields: [userGameId], references: [id], onDelete: Cascade)
+
+  @@unique([borrowerId, userGameId])
+}
+
 model User {
   id            String      @id @default(auto()) @map("_id") @db.ObjectId
   name          String?
@@ -24,6 +39,8 @@ model User {
   sessions      Session[]
   games         UserGame[] // Relation to UserGame model
   userGroups    UserGroup[]
+  loansBorrowed Loan[]      @relation("BorrowerRelation")
+  loansLent     Loan[]      @relation("LenderRelation")
 
   // Optional for WebAuthn support
   Authenticator Authenticator[]
@@ -39,6 +56,7 @@ model UserGame {
   gameId String   @db.ObjectId // References GameData model
   user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   game   GameData @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  loans  Loan[] // Track loans related to this game
 
   @@unique([userId, gameId])
   @@index([userId], name: "idx_user_id")

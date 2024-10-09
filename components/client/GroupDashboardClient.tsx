@@ -1,7 +1,7 @@
 // app/GroupDashboardClient.tsx (Client Component)
 'use client'
 
-import { useState } from 'react'
+import { AwaitedReactNode, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,7 +11,7 @@ import { SendIcon } from 'lucide-react'
 import { User } from 'next-auth'
 import { Message } from '@prisma/client/edge'
 
-export function GroupDashboardClient({ users, messages, groupId, groupName, currentUserId }: { users: User[], messages: Message[], groupId: string, groupName: string, currentUserId: string }) {
+export function GroupDashboardClient({ users, messages, groupId, groupName, currentUserId, groupGames }: { users: User[], messages: Message[], groupId: string, groupName: string, currentUserId: string, groupGames: any }) {
     const [newMessage, setNewMessage] = useState('')
     const [, setMessages] = useState<Message[]>(messages)
 
@@ -46,7 +46,7 @@ export function GroupDashboardClient({ users, messages, groupId, groupName, curr
         <div className="container mx-auto p-4">
             <h1 className="text-2xl font-bold mb-6">{groupName} Dashboard</h1>
             <h4 className="text-lg font-semibold mb-4">Group ID: {groupId}</h4>
-            <div className="grid gap-6 md:grid-cols-[300px_1fr]">
+            <div className="grid gap-6 md:grid-cols-[300px_1fr_300px]">
                 <Card>
                     <CardHeader>
                         <CardTitle>Group Members</CardTitle>
@@ -60,7 +60,7 @@ export function GroupDashboardClient({ users, messages, groupId, groupName, curr
                                             <AvatarImage src={user.image || ''} alt={user.name || 'User'} />
                                             <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
                                         </Avatar>
-                                        <span>{user.name}</span>
+                                        <span>{user.bggUserName || user.name}</span>
                                     </li>
                                 ))
                                 }
@@ -85,7 +85,7 @@ export function GroupDashboardClient({ users, messages, groupId, groupName, curr
                                                 <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
                                             </Avatar>
                                             <div>
-                                                <p className="font-semibold">{user?.name}</p>
+                                                <p className="font-semibold">{user?.bggUserName || user?.name}</p>
                                                 <p>{message.content}</p>
                                                 <p className="text-sm text-muted-foreground">
                                                     {new Date(message.timestamp).toLocaleString()}
@@ -109,6 +109,27 @@ export function GroupDashboardClient({ users, messages, groupId, groupName, curr
                                 Send
                             </Button>
                         </form>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Group Games</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ScrollArea className="h-[calc(100vh-200px)]">
+                            <ul className="space-y-4">
+                                {groupGames.map((game: { game: { id: Key | null | undefined; thumbnail: any; name: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined } }) => (
+                                    <li key={game.game.id} className="flex items-center space-x-4">
+                                        <Avatar>
+                                            <AvatarImage src={game.game.thumbnail || ''} alt={String(game.game.name) || 'Game'} />
+                                        </Avatar>
+                                        <span>{game.game.name}</span>
+                                    </li>
+                                ))
+                                }
+                            </ul>
+                        </ScrollArea>
                     </CardContent>
                 </Card>
             </div>
