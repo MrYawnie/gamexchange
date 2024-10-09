@@ -14,21 +14,23 @@ enum ObjectType {
 }
 
 model User {
-  id            String     @id @default(auto()) @map("_id") @db.ObjectId
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
   name          String?
-  email         String?    @unique
+  email         String?     @unique
   emailVerified DateTime?
   image         String?
-  bggUserName   String?    @unique
+  bggUserName   String?     @unique
   accounts      Account[]
   sessions      Session[]
-  games         UserGame[] // Relation to UserGame model (stores the game link)
+  games         UserGame[] // Relation to UserGame model
+  userGroups    UserGroup[]
 
   // Optional for WebAuthn support
   Authenticator Authenticator[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Message   Message[]
 }
 
 model UserGame {
@@ -39,6 +41,7 @@ model UserGame {
   game   GameData @relation(fields: [gameId], references: [id], onDelete: Cascade)
 
   @@unique([userId, gameId])
+  @@index([userId], name: "idx_user_id")
 }
 
 model GameData {
@@ -111,6 +114,44 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+// Group model to represent user groups
+model Group {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  userGroups  UserGroup[] // Relation to UserGroup model
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  Message     Message[]
+
+  @@index([name], name: "idx_group_name")
+}
+
+model UserGroup {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  userId  String @db.ObjectId
+  groupId String @db.ObjectId
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId]) // Ensure a user can only be in a group once
+}
+
+model Message {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId // MongoDB ID
+  userId    String   @db.ObjectId // Reference to the User
+  groupId   String   @db.ObjectId // Reference to the Group
+  content   String
+  timestamp DateTime @default(now())
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade) // Relation to User
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade) // Relation to Group
+
+  @@index([groupId], name: "idx_group_id") // Optional index for groupId
 }
 
 // Optional for WebAuthn support
