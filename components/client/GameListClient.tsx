@@ -1,7 +1,7 @@
 "use client"; // Mark this as a Client Component
 
 import React, { useState } from 'react';
-import GameCard from '../game-card';
+import Image from 'next/image';
 import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
 import { GameListProps } from '@/types/gameTypes';
@@ -48,11 +48,19 @@ export default function GameList({ games, errorMessage }: GameListProps) {
             </Button>
             {errorMessage && <p className="text-red-500">{errorMessage}</p>} {/* Display error message here */}
             {retryMessage && <p className="text-red-500">{retryMessage}</p>}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+            <div className="">
                 {games.length > 0 ? (
-                    games.map((userGame) => (
-                        <GameCard key={userGame.gameId} game={userGame.game} />
-                    ))
+                    <ul className="space-y-2">
+
+                        {games.map((game) => (
+                            <li key={game.game.gameId} className="bg-muted p-2 rounded-md flex justify-between items-center">
+                                <span>
+                                    {game.game.name}
+                                </span>
+                                <Image src={game.game.thumbnail} alt={game.game.name} width={32} height={32} className="h-8 w-8" />
+                            </li>
+                        ))}
+                    </ul>
                 ) : (
                     <p>No games found.</p>
                 )}
