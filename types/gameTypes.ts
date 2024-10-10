@@ -1,3 +1,6 @@
+import { User } from "@prisma/client";
+
+// Game data structure based on BoardGameGeek or similar API
 export interface GameData {
     gameId: string;
     objectType: 'boardgame' | 'boardgameexpansion';
@@ -20,12 +23,18 @@ export interface GameData {
     };
 }
 
-export interface Game {
-    gameId: string;
+// Represents each game instance in the group, with count of duplicates and owners
+export interface GroupGame {
     game: GameData;
+    count?: number; // Number of copies owned within the group
+    owners?: User[]; // List of users who own this game
+    isLoaned?: boolean; // Indicates if the game is loaned out
 }
 
+// Props for a component that displays a list of games
 export interface GameListProps {
-    games: Game[];
-    errorMessage: string | null; // Accept errorMessage prop
+    games: GroupGame[]; // Updated to use GroupGame instead of Game
+    errorMessage: string | null; // To display any error messages
+    /* currentUserId: string;
+    onToggleLoan: (gameId: string) => void; // Function to handle loan toggle */
 }

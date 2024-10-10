@@ -51,7 +51,7 @@ export default function GameList({ games, errorMessage }: GameListProps) {
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
                 {games.length > 0 ? (
                     games.map((userGame) => (
-                        <GameCard key={userGame.gameId} game={userGame.game} />
+                        <GameCard key={userGame.game.gameId} game={userGame.game} />
                     ))
                 ) : (
                     <p>No games found.</p>
