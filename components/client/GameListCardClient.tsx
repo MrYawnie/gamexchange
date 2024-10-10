@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
 import { GameListProps } from '@/types/gameTypes';
 
-export default function GameList({ games, errorMessage }: GameListProps) {
+export default function GameList({ games, errorMessage, bggUserId }: GameListProps) {
     const [retryMessage, setRetryMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
@@ -20,7 +20,7 @@ export default function GameList({ games, errorMessage }: GameListProps) {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username: 'dummy' }), // Pass the necessary data if needed
+                body: JSON.stringify({ username: bggUserId }), // Pass the necessary data if needed
             });
 
             if (response.status === 202) {

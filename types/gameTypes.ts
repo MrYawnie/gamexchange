@@ -35,6 +35,7 @@ export interface GroupGame {
 export interface GameListProps {
     games: GroupGame[]; // Updated to use GroupGame instead of Game
     errorMessage: string | null; // To display any error messages
-    /* currentUserId: string;
-    onToggleLoan: (gameId: string) => void; // Function to handle loan toggle */
+    bggUserId?: string;
+    currentUserId?: string; // Current user ID
+    /* onToggleLoan: (gameId: string) => void; // Function to handle loan toggle */
 }

@@ -166,8 +166,8 @@ export function GroupDashboardClient({
                 <TabsContent value="games">
                     <GroupGames
                         games={groupGames}
-                        /* currentUserId={currentUserId}
-                        onToggleLoan={(gameId: string) => {
+                        currentUserId={currentUserId}
+                        /* onToggleLoan={(gameId: string) => {
                             // Implement toggle loan functionality
                             console.log(`Toggling loan status for game: ${gameId}`);
                         }} */
