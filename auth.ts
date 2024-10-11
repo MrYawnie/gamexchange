@@ -1,10 +1,10 @@
-
 import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
 import GitHub from "next-auth/providers/github"
 import Resend from "next-auth/providers/resend"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/prisma"
+import { sendVerificationRequest } from "./lib/authSendRequest"
 
 declare module "next-auth" {
   interface User {
@@ -21,7 +21,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Google,
     GitHub,
-    Resend({from: "no-reply@bgg.yawnie.dev"}),
+    Resend({
+      // server: process.env.EMAIL_SERVER, // Ensure this includes necessary details like API key
+      from: 'no-reply@bgg.yawnie.dev',
+      sendVerificationRequest, // Use your custom function
+    }),
   ],
   callbacks: {
     authorized: async ({ auth }) => {
@@ -32,5 +36,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.user.bggUserName = user.bggUserName
       return session
     },
+    redirect: async ({ url, baseUrl }) => {
+      return url.startsWith(baseUrl) ? `${baseUrl}/dashboard` : baseUrl
+    }
   }
 })
