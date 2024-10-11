@@ -1,8 +1,6 @@
 import { auth } from "@/auth";
 import BGGLoginDialog from "@/components/bgg-login";
 import GameLibrary from "@/components/server/gamelist-server";
-import { SignIn } from "@/components/sign-in";
-import { SignOut } from "@/components/signout-button";
 import { BGGUser } from "@/components/user-avatar";
 
 export default async function Page() {
@@ -14,8 +12,6 @@ export default async function Page() {
       <h1>My Collection</h1>
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <SignIn />
-          <SignOut />
           {!session.user.bggUserName ? (
             <BGGLoginDialog />
           ) : (

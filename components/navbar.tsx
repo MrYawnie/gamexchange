@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { SignOut } from "@/components/signout-button";
 
 export default function NavBar() {
   const pathname = usePathname()
@@ -32,6 +33,9 @@ export default function NavBar() {
             >
               My Collection
             </Link>
+          </li>
+          <li>
+            <SignOut />
           </li>
         </ul>
       </div>
