@@ -10,7 +10,7 @@ export default function NavBar() {
     <nav className="bg-gray-800 p-4">
       <div className="container mx-auto flex flex-col sm:flex-row items-center justify-between">
         <div className="text-white font-bold text-xl mb-4 sm:mb-0">
-          My App
+          GameXchange
         </div>
         <ul className="flex space-x-4">
           <li>

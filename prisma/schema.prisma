@@ -34,7 +34,7 @@ model User {
   email         String?     @unique
   emailVerified DateTime?
   image         String?
-  bggUserName   String?     @unique
+  bggUserName   String?
   accounts      Account[]
   sessions      Session[]
   games         UserGame[] // Relation to UserGame model
