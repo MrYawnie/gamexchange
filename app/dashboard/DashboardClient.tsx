@@ -54,7 +54,7 @@ const DashboardClient = () => {
             if (response.ok) {
                 const newGroup = await response.json();
                 setUserGroups((prev) => [...prev, newGroup]);
-                setNewGroupName(newGroup.name);
+                setNewGroupName('');
             } else {
                 const errorData = await response.json();
                 console.error('Error creating group:', errorData.error);
