@@ -23,6 +23,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     GitHub,
     Resend({
       // server: process.env.EMAIL_SERVER, // Ensure this includes necessary details like API key
+      apiKey: process.env.AUTH_RESEND_KEY,
       from: 'no-reply@bgg.yawnie.dev',
       sendVerificationRequest, // Use your custom function
     }),
