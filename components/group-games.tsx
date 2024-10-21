@@ -16,6 +16,7 @@ export default function GroupGames({ games }: GameListProps) {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Game</TableHead>
+                                <TableHead>Type</TableHead>
                                 <TableHead>Year</TableHead>
                                 <TableHead>Rating</TableHead>
                                 <TableHead>Owner(s)</TableHead>
@@ -27,6 +28,9 @@ export default function GroupGames({ games }: GameListProps) {
                             {games.map((game) => (
                                 <TableRow key={game.game.gameId}>
                                     <TableCell className="font-medium">{game.game.name}</TableCell>
+                                    <TableCell>
+                                        {game.game.objectType === "boardgame" ? "Base Game" : game.game.objectType === "boardgameexpansion" ? "Expansion" : game.game.objectType}
+                                    </TableCell>
                                     <TableCell>{game.game.yearPublished}</TableCell>
                                     <TableCell>{game.game.ratings.average?.toFixed(1)}</TableCell>
                                     <TableCell>

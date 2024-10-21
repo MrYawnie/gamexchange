@@ -39,3 +39,7 @@ export interface GameListProps {
     currentUserId?: string; // Current user ID
     /* onToggleLoan: (gameId: string) => void; // Function to handle loan toggle */
 }
+
+export interface UserProps {
+    user: Partial<User>;
+}

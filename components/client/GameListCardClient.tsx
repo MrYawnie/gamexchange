@@ -5,6 +5,7 @@ import GameCard from '../game-card';
 import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
 import { GameListProps } from '@/types/gameTypes';
+import BGGLoginDialog from "@/components/bgg-login";
 
 export default function GameList({ games, errorMessage, bggUserId }: GameListProps) {
     const [retryMessage, setRetryMessage] = useState<string | null>(null);
@@ -42,10 +43,14 @@ export default function GameList({ games, errorMessage, bggUserId }: GameListPro
 
     return (
         <div>
-            <h1 className="text-center mb-4 text-2xl">Personal Game Library</h1>
-            <Button onClick={refetchGames} style={{ marginBottom: '16px' }} disabled={isLoading}>
-                {isLoading ? 'Refreshing Games...' : 'Refresh Games'}
-            </Button>
+            <h1 className="text-center mb-4 text-2xl">My Game Collection</h1>
+            {!bggUserId ? (
+                <BGGLoginDialog />
+            ) : (
+                <Button onClick={refetchGames} style={{ marginBottom: '16px' }} disabled={isLoading}>
+                    {isLoading ? 'Refreshing Games...' : 'Refresh Games'}
+                </Button>
+            )}
             {errorMessage && <p className="text-red-500">{errorMessage}</p>} {/* Display error message here */}
             {retryMessage && <p className="text-red-500">{retryMessage}</p>}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">

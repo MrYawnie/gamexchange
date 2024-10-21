@@ -1,26 +1,11 @@
-import { auth } from "@/auth";
-import BGGLoginDialog from "@/components/bgg-login";
 import GameLibrary from "@/components/server/gamelist-server";
-import { BGGUser } from "@/components/user-avatar";
 
 export default async function Page() {
-  const session = await auth();
-  if (!session || !session.user) return null;
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <h1>My Collection</h1>
+    <div className="grid grid-rows-[1fr] items-center justify-items-center min-h-screen p-8 pb-10 gap-0 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          {!session.user.bggUserName ? (
-            <BGGLoginDialog />
-          ) : (
-            <BGGUser />
-          )}
-        </div>
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
           <GameLibrary />
-        </div>
       </main >
     </div >
   );
