@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     }
 
     if (!username) {
-        return NextResponse.json({ error: 'Username is required' }, { status: 400 });
+        return NextResponse.json({ error: 'BGG Username is required. Link your username from Navigation Bar.' }, { status: 400 });
     }
 
     // URLs for both board games and expansions

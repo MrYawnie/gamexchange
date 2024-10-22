@@ -1,16 +1,17 @@
-import { auth } from "@/auth"
 import Image from 'next/image'
+import { getUser } from "@/lib/signout-action"
+import BGGLoginDialog from "@/components/bgg-login";
+import { UserProps } from '@/types/gameTypes'
 
 export default async function UserAvatar() {
-  const session = await auth()
-
-  if (!session || !session.user) return null
+  const user = await getUser()
+  if (!user) return null
 
   return (
     <div className="flex items-center">
-      {session.user.image && (
+      {user.image && (
         <Image
-          src={session.user.image}
+          src={user.image}
           alt="User Avatar"
           width={50}
           height={50}
@@ -18,18 +19,16 @@ export default async function UserAvatar() {
         />
       )}
       <div>
-        <h2 className="m-0">{session.user.name}</h2>
-        <p className="m-0">{session.user.email}</p>
-        <p className="m-0">{session.user.bggUserName}</p>
+        <h2 className="m-0">{user.name}</h2>
+        <p className="m-0">{user.email}</p>
+        <p className="m-0">{user.bggUserName}</p>
       </div>
     </div>
   )
 }
 
-export async function BGGUser() {
-  const session = await auth()
-
-  if (!session || !session.user) return null
+export function BGGUser({ user }: UserProps) {
+  if (!user?.bggUserName) return <BGGLoginDialog />;
 
   return (
     <div className="bg-[#E7CD78] p-2.5 rounded flex items-center">
@@ -40,7 +39,7 @@ export async function BGGUser() {
       height={50}
       className="mr-2.5"
       />
-      <p className="text-white">{session.user.bggUserName}</p>
+      <p className="text-white">{user.bggUserName}</p>
     </div>
   )
 }
