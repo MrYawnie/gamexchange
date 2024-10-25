@@ -167,6 +167,8 @@ export function GroupDashboardClient({
                     <GroupGames
                         games={groupGames}
                         currentUserId={currentUserId}
+                        groupId={groupId}
+                        users={users}
                         /* onToggleLoan={(gameId: string) => {
                             // Implement toggle loan functionality
                             console.log(`Toggling loan status for game: ${gameId}`);

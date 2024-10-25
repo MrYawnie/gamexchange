@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth'; // adjust the import based on your auth utility
 import { prisma } from '@/prisma'; // adjust the import based on your prisma instance
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     const session = await auth(); // Authenticate the user
     if (!session || !session.user) {
         return NextResponse.json({ error: 'You are not logged in.' }, { status: 401 });

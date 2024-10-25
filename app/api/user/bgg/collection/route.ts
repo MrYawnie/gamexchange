@@ -36,8 +36,16 @@ export async function POST(req: Request) {
         }
         const expansionsData = await parseXML(expansionsResponse.data);
 
+        // Safely combine board games and expansions, checking if arrays exist and are iterable
+        const boardGamesArray = Array.isArray(boardGamesData.items?.item) ? boardGamesData.items.item : [];
+        const expansionsArray = Array.isArray(expansionsData.items?.item) ? expansionsData.items.item : [];
+
+        if (boardGamesArray.length === 0 && expansionsArray.length === 0) {
+            return NextResponse.json({ message: 'No games or expansions found.' }, { status: 204 });
+        }
+
         // Combine both board games and expansions
-        const combinedItems = [...boardGamesData.items.item, ...expansionsData.items.item];
+        const combinedItems = [...boardGamesArray, ...expansionsArray];
 
         for (const item of combinedItems) {
             const gameId = item.$.objectid;
