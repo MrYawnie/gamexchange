@@ -7,7 +7,7 @@ const LoanGameAction = ({ game, users, groupId, currentUserId, userGameId }: Loa
     const [borrowerId, setBorrowerId] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const isLoaned = game.isLoaned;
+    const isLoaned = game.userGames.some(userGame => userGame.isLoaned && userGame.user.id === currentUserId);
 
     const loanGame = async () => {
         if (!borrowerId) return;
@@ -48,7 +48,7 @@ const LoanGameAction = ({ game, users, groupId, currentUserId, userGameId }: Loa
         try {
             console.log('Ending loan for game:', game);
 
-            const lastLoan = game.loans?.findLast(loan => loan.endDate === null); // Example condition
+            const lastLoan = game.loans?.findLast(loan => loan.endDate === null && loan.lenderId === currentUserId); // Example condition with userId check
             if (!lastLoan) {
                 console.error("No active loan found");
                 return;

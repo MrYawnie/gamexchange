@@ -42,6 +42,7 @@ export interface GroupGame {
 }
 
 export interface UserGame {
+    [x: string]: any;
     userId: string;
     gameId: string;
     isLoaned: boolean;
