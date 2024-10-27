@@ -2,13 +2,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { GameListProps } from '@/types/gameTypes';
+import { GameListProps, UserGame } from '@/types/gameTypes';
 import LoanGameAction from '../lib/LoanGameAction';
 import { useReactTable, getCoreRowModel, getExpandedRowModel, ColumnDef } from '@tanstack/react-table';
 import React from "react";
 
 export default function GroupGames({ games, currentUserId, groupId, users }: GameListProps) {
     console.log('Group Games:', games);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const columns: ColumnDef<any>[] = [
         {
             header: 'Game',
@@ -17,27 +18,27 @@ export default function GroupGames({ games, currentUserId, groupId, users }: Gam
                 const isExpanded = row.getIsExpanded();
                 const subItemsCount = row.original.userGames.length; // Adjust this based on where your sub-items are stored
                 const canExpand = subItemsCount > 1; // Allow expansion only if there are more than 1 sub-item
-        
+
                 console.log('Row:', row, 'Game Name:', getValue(), 'Is Expanded:', isExpanded, 'Can Expand:', canExpand);
-        
+
                 return (
-                    <span 
-                        onClick={canExpand ? () => row.toggleExpanded() : undefined} 
+                    <span
+                        onClick={canExpand ? () => row.toggleExpanded() : undefined}
                         className={`cursor-pointer ${canExpand ? 'text-blue-600' : ''}`}
                     >
-                        {getValue()}
+                        {getValue() as React.ReactNode}
                         {canExpand && (isExpanded ? ' ▲' : ' ▼')}
                     </span>
                 );
             },
         },
-        
+
         {
             header: 'Type',
             accessorKey: 'game.objectType',
             cell: ({ getValue }) => (
                 <span>
-                    {getValue() === 'boardgame' ? 'Base Game' : getValue() === 'boardgameexpansion' ? 'Expansion' : getValue()}
+                    {getValue() === 'boardgame' ? 'Base Game' : getValue() === 'boardgameexpansion' ? 'Expansion' : String(getValue())}
                 </span>
             ),
         },
@@ -45,13 +46,16 @@ export default function GroupGames({ games, currentUserId, groupId, users }: Gam
         {
             header: 'Rating',
             accessorKey: 'game.ratings.average',
-            cell: ({ getValue }) => getValue()?.toFixed(1),
+            cell: ({ getValue }) => {
+                const value = getValue();
+                return typeof value === 'number' ? value.toFixed(1) : value;
+            },
         },
         {
             header: 'Owner(s)',
             cell: ({ row }) => (
                 <div className="flex space-x-[-6px]">
-                    {row.original.userGames.map((userGame) => (
+                    {row.original.userGames.map((userGame: UserGame) => (
                         <Avatar key={userGame.user.id} className="h-6 w-6">
                             <AvatarImage src={userGame.user.image || ''} alt={userGame.user.name || 'User'} />
                             <AvatarFallback>{userGame.user.name?.charAt(0)}</AvatarFallback>
@@ -82,7 +86,7 @@ export default function GroupGames({ games, currentUserId, groupId, users }: Gam
             header: 'Action',
             cell: ({ row }) => {
                 // Find the userGame associated with the current user
-                const userGame = row.original.userGames.find((game) => game.user.id === currentUserId);
+                const userGame = row.original.userGames.find((game: UserGame) => game.user.id === currentUserId);
 
                 // Render LoanGameAction if the userGame exists
                 return userGame ? (
@@ -117,23 +121,24 @@ export default function GroupGames({ games, currentUserId, groupId, users }: Gam
                         <TableHeader>
                             <TableRow>
                                 {columns.map((column, index) => (
-                                    <TableHead key={index}>{column.header}</TableHead>
+                                    <TableHead key={index}>{column.header as React.ReactNode}</TableHead>
                                 ))}
                             </TableRow>
+
                         </TableHeader>
                         <TableBody>
                             {table.getRowModel().rows.map((row) => (
                                 <React.Fragment key={row.id}>
-                                    <TableRow>
-                                        {row.getVisibleCells().map((cell) => (
+                                    <TableRow key={row.id}>
+                                        {row.getVisibleCells().map(cell => (
                                             <TableCell key={cell.id}>
-                                                {cell.column.columnDef.cell
-                                                    ? cell.column.columnDef.cell(cell)
+                                                {typeof cell.column.columnDef.cell === 'function'
+                                                    ? cell.column.columnDef.cell(cell.getContext())
                                                     : cell.getValue()}
                                             </TableCell>
                                         ))}
                                     </TableRow>
-                                    {row.getIsExpanded() && row.original.userGames.map((userGame) => (
+                                    {row.getIsExpanded() && row.original.userGames.map((userGame: UserGame) => (
                                         <TableRow key={userGame.userGameId} className="pl-4">
                                             <TableCell></TableCell>
                                             <TableCell></TableCell>

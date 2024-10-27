@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"; // Replace with your Select component if needed
-import { LoanGameActionProps } from '@/types/gameTypes';
+import { LoanGameActionProps, UserGame } from '@/types/gameTypes';
 
 const LoanGameAction = ({ game, users, groupId, currentUserId, userGameId }: LoanGameActionProps) => {
     const [borrowerId, setBorrowerId] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const isLoaned = game.userGames.some(userGame => userGame.isLoaned && userGame.user.id === currentUserId);
+    const isLoaned = game.userGames.some((userGame: UserGame) => userGame.isLoaned && userGame.user.id === currentUserId);
 
     const loanGame = async () => {
         if (!borrowerId) return;
@@ -89,7 +89,7 @@ const LoanGameAction = ({ game, users, groupId, currentUserId, userGameId }: Loa
                             <SelectValue placeholder="Select Borrower" />
                         </SelectTrigger>
                         <SelectContent>
-                            {users
+                            {users && users
                                 .filter(user => user.id !== currentUserId) // Exclude current user from the borrower list
                                 .map(user => (
                                     <SelectItem key={user.id} value={user.id}>

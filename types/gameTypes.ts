@@ -5,7 +5,7 @@ export interface GameData {
     gameId: string;
     objectType: 'boardgame' | 'boardgameexpansion';
     name: string;
-    yearPublished: number | null;
+    yearPublished: number;
     image: string;
     thumbnail: string;
     stats: {
@@ -27,14 +27,14 @@ export interface GameData {
 export interface GroupGame {
     id: string;
     game: GameData;
-    count?: number; // Number of copies owned within the group
-    availableCount?: number; // Number of available copies
-    loanedCount?: number; // Number of loaned copies
+    count: number; // Number of copies owned within the group
+    availableCount: number; // Number of available copies
+    loanedCount: number; // Number of loaned copies
     owners?: User[]; // List of users who own this game
     isLoaned?: boolean; // Indicates if the game is loaned out
-    user: User;
+    user?: User;
     loans?: Loan[];
-    userGames: {
+    userGames?: {
         userGameId: string;
         user: User;
         isLoaned: boolean;
@@ -50,6 +50,7 @@ export interface UserGame {
     loanedToUser?: User;
     loanedDate?: Date;
     returnDate?: Date;
+    count: number;
     game: GameData;
     user: User;
     loans?: Loan[];
@@ -61,10 +62,7 @@ export interface Loan {
     lenderId: string;
     borrowerId: string;
     startDate: Date;
-    endDate?: Date;
-    userGame: UserGame;
-    lender: User;
-    borrower: User;
+    endDate?: Date | null;
 }
 
 // Props for a component that displays a list of games
@@ -72,8 +70,8 @@ export interface GameListProps {
     games: GroupGame[]; // Updated to use GroupGame instead of Game
     errorMessage: string | null; // To display any error messages
     bggUserId?: string;
-    currentUserId?: string; // Current user ID
-    groupId: string; // Group ID
+    currentUserId: string; // Current user ID
+    groupId?: string; // Group ID
     users?: User[]; // List of users in the group
     /* onToggleLoan: (gameId: string) => void; // Function to handle loan toggle */
 }
@@ -84,8 +82,8 @@ export interface UserProps {
 
 export interface LoanGameActionProps {
     game: UserGame; // GroupGame interface includes game details, loan status, etc.
-    users: User[]; // List of users in the group
-    groupId: string; // The current group ID
+    users?: User[]; // List of users in the group
+    groupId?: string; // The current group ID
     currentUserId: string; // ID of the current logged-in user
     userGameId: string; // The specific user's game instance ID
 }

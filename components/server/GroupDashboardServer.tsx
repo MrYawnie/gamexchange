@@ -57,7 +57,6 @@ export default async function GroupDashboard({ groupId }: GroupDashboardProps) {
 
     // console.log('Group Games: ', groupGames);
 
-    // Group the games by gameId, including the owners of the game
     // Group the games by gameId, including details of each user's game copy
     const groupedGames = groupGames.reduce((acc: { [key: string]: GroupGame }, userGame) => {
         const gameId = userGame.gameId;
@@ -66,7 +65,11 @@ export default async function GroupDashboard({ groupId }: GroupDashboardProps) {
         // Initialize the game group if it doesn't exist
         if (!acc[gameId]) {
             acc[gameId] = {
-                game: userGame.game,
+                id: gameId,
+                game: {
+                    ...userGame.game,
+                    yearPublished: userGame.game.yearPublished ?? 0, // Ensure yearPublished is a number
+                },
                 count: 0,
                 availableCount: 0,
                 loanedCount: 0,
@@ -77,24 +80,32 @@ export default async function GroupDashboard({ groupId }: GroupDashboardProps) {
         }
     
         // Add each copy’s details to the userGames array
-        acc[gameId].userGames.push({
+        acc[gameId].userGames?.push({
             userGameId: userGame.id,
             user: userGame.user,
             isLoaned,
         });
-
+    
         // Aggregate loan details
         userGame.loans.forEach(loan => {
-            acc[gameId].loans.push(loan); // Add loan to the group's loan details
+            acc[gameId].loans?.push(loan); // Add loan to the group's loan details
         });
     
         // Update counts
-        acc[gameId].count += 1;
-        isLoaned ? acc[gameId].loanedCount++ : acc[gameId].availableCount++;
-        acc[gameId].isLoaned ||= isLoaned;
+        acc[gameId]!.count += 1;
+    
+        if (isLoaned) {
+            acc[gameId]!.loanedCount++;
+        } else {
+            acc[gameId]!.availableCount++;
+        }
+        
+        acc[gameId]!.isLoaned = acc[gameId]!.isLoaned || isLoaned;
+        
     
         return acc;
     }, {});
+    
 
     // Convert the result to an array for easier rendering
     const gamesList: GroupGame[] = Object.values(groupedGames);
