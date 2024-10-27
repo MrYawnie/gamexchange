@@ -38,7 +38,7 @@ const BGGLoginForm = () => {
         setMessage(`Login successful! BGG Username: ${data.bggUsername}`);
 
         try {
-          const gamesResponse = await fetch('/api/user/bgg/collection', {
+          const response = await fetch('/api/user/bgg/collection', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -46,8 +46,14 @@ const BGGLoginForm = () => {
             body: JSON.stringify({ username: data.bggUsername }),
           });
 
-          const gamesData = await gamesResponse.json();
-          console.log('Fetched games data:', gamesData);
+          // Check the response status
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'An error occurred');
+          }
+
+          // Handle success (e.g., show a success message, refresh data)
+          setMessage('Games fetched and saved successfully!');
         } catch (error) {
           console.error('Error fetching games:', error);
           setMessage('An error occurred while fetching your collection.');

@@ -51,28 +51,57 @@ export default async function GroupDashboard({ groupId }: GroupDashboardProps) {
         include: {
             game: true, // Include game details (from GameData)
             user: true, // Include user details (from User)
+            loans: true, // Include loan details
         }
     });
 
-    // Group the games by gameId, including the owners of the game
+    // console.log('Group Games: ', groupGames);
+
+    // Group the games by gameId, including details of each user's game copy
     const groupedGames = groupGames.reduce((acc: { [key: string]: GroupGame }, userGame) => {
         const gameId = userGame.gameId;
+        const isLoaned = userGame.loans.some((loan) => loan.endDate == null);
     
+        // Initialize the game group if it doesn't exist
         if (!acc[gameId]) {
             acc[gameId] = {
-                game: userGame.game, // Game details from GameData
-                owners: [userGame.user], // Initialize owners array with the first owner
-                count: 1, // Initialize count to 1
-                isLoaned: false, // Default value; adjust based on loan status
+                id: gameId,
+                game: {
+                    ...userGame.game,
+                    yearPublished: userGame.game.yearPublished ?? 0, // Ensure yearPublished is a number
+                },
+                count: 0,
+                availableCount: 0,
+                loanedCount: 0,
+                isLoaned: false,
+                userGames: [], // Store individual copies here
+                loans: [],
             };
-        } else {
-            // Ensure count and owners are defined before accessing them
-            if (acc[gameId]) {
-                acc[gameId].count = (acc[gameId].count ?? 0) + 1; // Increment count safely
-                acc[gameId].owners = acc[gameId].owners || []; // Ensure owners is an array
-                acc[gameId].owners.push(userGame.user); // Add the owner to the owners array
-            }
         }
+    
+        // Add each copy’s details to the userGames array
+        acc[gameId].userGames?.push({
+            userGameId: userGame.id,
+            user: userGame.user,
+            isLoaned,
+        });
+    
+        // Aggregate loan details
+        userGame.loans.forEach(loan => {
+            acc[gameId].loans?.push(loan); // Add loan to the group's loan details
+        });
+    
+        // Update counts
+        acc[gameId]!.count += 1;
+    
+        if (isLoaned) {
+            acc[gameId]!.loanedCount++;
+        } else {
+            acc[gameId]!.availableCount++;
+        }
+        
+        acc[gameId]!.isLoaned = acc[gameId]!.isLoaned || isLoaned;
+        
     
         return acc;
     }, {});

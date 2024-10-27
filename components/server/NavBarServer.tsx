@@ -5,7 +5,6 @@ import NavBarClient from '../client/NavBarClient'; // separate client-side navba
 export default async function NavBarServer() {
   const session = await auth();
     if (!session || !session.user) return null;
-    console.log(session.user);
 
   return <NavBarClient user={session.user || null} />;
 }

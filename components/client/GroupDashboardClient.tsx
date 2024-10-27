@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { SendIcon, ArrowLeftIcon } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { User } from 'next-auth'
+import { User } from '@prisma/client'
 import { Message } from '@prisma/client/edge'
 import GroupGames from '../group-games'
 import { GroupGame } from '../../types/gameTypes' // Importing the GroupGame type
@@ -167,10 +167,8 @@ export function GroupDashboardClient({
                     <GroupGames
                         games={groupGames}
                         currentUserId={currentUserId}
-                        /* onToggleLoan={(gameId: string) => {
-                            // Implement toggle loan functionality
-                            console.log(`Toggling loan status for game: ${gameId}`);
-                        }} */
+                        groupId={groupId}
+                        users={users}
                         errorMessage={null}
                     />
                 </TabsContent>

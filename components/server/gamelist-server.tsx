@@ -4,7 +4,7 @@ import GameList from '../client/GameListCardClient'; // Client component
 
 export default async function GameLibrary() {
     const session = await auth();
-    if (!session || !session.user) return <GameList games={[]} errorMessage="You are not logged in." bggUserId={''} />;
+    if (!session || !session.user) return <GameList games={[]} errorMessage="You are not logged in." currentUserId={''} bggUserId={''} />;
 
     // Fetch user and games
     let userWithGames;
@@ -23,13 +23,24 @@ export default async function GameLibrary() {
         });
     } catch (error) {
         console.error('Error fetching user with games:', error);
-        return <GameList games={[]} errorMessage="Failed to load your games. Please try again later." bggUserId={session.user.bggUserName || ''} />;
+        return <GameList games={[]} errorMessage="Failed to load your games. Please try again later." currentUserId={session.user.id || ''} bggUserId={session.user.bggUserName || ''} />;
     }
 
     if (!userWithGames) {
-        return <GameList games={[]} errorMessage="No games found for your account." bggUserId={session.user.bggUserName || ''} />;
+        return <GameList games={[]} errorMessage="No games found for your account." currentUserId={session.user.id || ''} bggUserId={session.user.bggUserName || ''} />;
     }
 
     // Pass the games data to the client component
-    return <GameList games={userWithGames.games || []} errorMessage={null} bggUserId={session.user.bggUserName || ''} />;
+    const games = (userWithGames.games || []).map(game => ({
+        ...game,
+        game: {
+            ...game.game,
+            yearPublished: game.game.yearPublished ?? 0, // Provide a default value for yearPublished
+        },
+        count: 0,
+        availableCount: 0,
+        loanedCount: 0,
+    }));
+
+    return <GameList games={games} errorMessage={null} currentUserId={session.user.id || ''} bggUserId={session.user.bggUserName || ''} />;
 }

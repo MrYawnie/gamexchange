@@ -51,12 +51,13 @@ model User {
 }
 
 model UserGame {
-  id     String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId String   @db.ObjectId
-  gameId String   @db.ObjectId // References GameData model
-  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  game   GameData @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  loans  Loan[] // Track loans related to this game
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String   @db.ObjectId
+  gameId        String   @db.ObjectId // References GameData model
+  isLoaned      Boolean  @default(false)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game          GameData @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  loans         Loan[] // Track loans related to this game
 
   @@unique([userId, gameId])
   @@index([userId], name: "idx_user_id")

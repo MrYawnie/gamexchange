@@ -2,16 +2,18 @@
 import GroupDashboardServer from '@/components/server/GroupDashboardServer';
 
 interface GroupPageProps {
-    params: {
+    params: Promise<{
         id: string;
-    };
+    }>;
 }
 
-const GroupPage = ({ params }: GroupPageProps) => {
+const GroupPage = async (props: GroupPageProps) => {
+    const params = await props.params;
     const { id: groupId } = params; // Extract the 'id' from the dynamic route
 
     // Pass the extracted 'groupId' to GroupDashboardServer
-    return <GroupDashboardServer groupId={groupId} />;
+    const groupDashboard = await GroupDashboardServer({ groupId });
+    return groupDashboard;
 };
 
 export default GroupPage;
