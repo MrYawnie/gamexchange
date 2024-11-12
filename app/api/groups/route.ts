@@ -77,14 +77,14 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "You're already a member of this group." }, { status: 400 });
         }
 
-        const updatedGroup = await prisma.userGroup.create({
+        await prisma.userGroup.create({
             data: {
                 userId: session.user.id as string, // Ensure userId is a string
                 groupId: id,
             },
         });
 
-        return NextResponse.json(updatedGroup);
+        return NextResponse.json(group);
     }
 
     return NextResponse.json({ error: 'Invalid action.' }, { status: 400 });

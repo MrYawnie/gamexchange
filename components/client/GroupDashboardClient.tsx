@@ -1,22 +1,22 @@
-// app/GroupDashboardClient.tsx (Client Component)
 'use client'
 
-import { useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { SendIcon, ArrowLeftIcon } from 'lucide-react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { User } from '@prisma/client'
-import { Message } from '@prisma/client/edge'
-import GroupGames from '../group-games'
-import { GroupGame } from '../../types/gameTypes' // Importing the GroupGame type
+import { useState, useRef, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { SendIcon, ArrowLeftIcon, LogOut } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { User } from '@prisma/client';
+import { Message } from '@prisma/client/edge';
+import GroupGames from '../group-games';
+import { GroupGame } from '../../types/gameTypes';
+import { useRouter } from 'next/navigation';
 
 export function GroupDashboardClient({
     users,
-    messages,
+    messages: initialMessages,
     groupId,
     groupName,
     currentUserId,
@@ -27,47 +27,98 @@ export function GroupDashboardClient({
     groupId: string,
     groupName: string,
     currentUserId: string,
-    groupGames: GroupGame[]  // Using GroupGame[] type
+    groupGames: GroupGame[]
 }) {
-    const [newMessage, setNewMessage] = useState('')
-    const [, setMessages] = useState<Message[]>(messages)
+    const router = useRouter();
+    const scrollAreaRef = useRef<HTMLDivElement>(null);
+    const [newMessage, setNewMessage] = useState('');
+    const [messages, setMessages] = useState<Message[]>(initialMessages);
+
+    useEffect(() => {
+        if (scrollAreaRef.current) {
+            scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+        }
+    }, [messages]);
+
+    useEffect(() => {
+        const intervalId = setInterval(fetchMessages, 10000); // Fetch messages every 5 seconds
+        return () => clearInterval(intervalId);
+    }, []);
+
+    const fetchMessages = async () => {
+        try {
+            const response = await fetch(`/api/messages?groupId=${groupId}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+            });
+    
+            if (response.ok) {
+                const newMessages = await response.json();
+                setMessages(newMessages);
+            } else {
+                console.error('Failed to fetch messages:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error fetching messages:', error);
+        }
+    };
 
     const sendMessage = async (e: React.FormEvent) => {
-        e.preventDefault()
+        e.preventDefault();
         if (newMessage.trim()) {
             const message: Omit<Message, 'id'> = {
-                userId: currentUserId, // Replace this with the actual current user's ID
+                userId: currentUserId,
                 content: newMessage.trim(),
                 timestamp: new Date(),
                 groupId: groupId,
-            }
+            };
 
-            // Send message to the server (API route)
             const response = await fetch('/api/messages', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ ...message, groupId }),
-            })
+            });
 
             if (response.ok) {
-                const savedMessage = await response.json()
-                setMessages((prevMessages) => [...prevMessages, savedMessage])
-                setNewMessage('')
+                const savedMessage = await response.json();
+                setMessages((prevMessages) => [...prevMessages, savedMessage]);
+                setNewMessage('');
+            } else {
+                console.error('Failed to save message:', response.statusText);
             }
         }
-    }
+    };
+
+    const handleBack = () => {
+        router.back();
+    };
+
+    const handleExitGroup = async () => {
+        const confirmed = confirm('Are you sure you want to leave the group?');
+        if (!confirmed) return;
+
+        const response = await fetch(`/api/groups/${groupId}`, { method: 'DELETE' });
+        if (response.ok) {
+            router.push('/dashboard');
+        }
+    };
 
     return (
         <div className="container mx-auto p-4">
             <div className="flex justify-between items-center mb-6">
-
-                <h1 className="text-2xl font-bold mb-6">{groupName} Dashboard</h1>
-                <h4 className="text-lg font-semibold mb-4">Group ID: {groupId}</h4>
-                <Button variant="outline">
+                <Button variant="outline" onClick={handleBack}>
                     <ArrowLeftIcon className="mr-2 h-4 w-4" />
-                    Exit Group
+                    Dashboard
+                </Button>
+                <div className='text-center'>
+                    <h1 className="text-2xl font-bold my-1">{groupName} Dashboard</h1>
+                    <h4 className="text-lg font-semibold my-1">Group ID: {groupId}</h4>
+                </div>
+                <Button variant="outline" onClick={handleExitGroup}>
+                    Leave group
+                    <LogOut className="ml-2 h-4 w-4" />
                 </Button>
             </div>
             <Tabs defaultValue="chat">
@@ -92,8 +143,7 @@ export function GroupDashboardClient({
                                                 </Avatar>
                                                 <span>{user.bggUserName || user.name}</span>
                                             </li>
-                                        ))
-                                        }
+                                        ))}
                                     </ul>
                                 </ScrollArea>
                             </CardContent>
@@ -104,25 +154,22 @@ export function GroupDashboardClient({
                                 <CardTitle>Group Chat</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <ScrollArea className="h-[calc(100vh-300px)] mb-4">
+                                <ScrollArea className="h-[calc(100vh-300px)] mb-4" ref={scrollAreaRef}>
                                     <ul className="space-y-4">
                                         {messages.map((message) => {
-                                            const user = users.find(u => u.id === message.userId)
+                                            const user = users.find(u => u.id === message.userId);
                                             return (
                                                 <li key={message.id} className="flex items-start space-x-4">
                                                     <Avatar>
-                                                        <AvatarImage src={user?.image || undefined} alt={user?.name || undefined} />
+                                                        <AvatarImage src={user?.image || ''} alt={user?.name || 'User'} />
                                                         <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
                                                     </Avatar>
                                                     <div>
                                                         <p className="font-semibold">{user?.bggUserName || user?.name}</p>
                                                         <p>{message.content}</p>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            {new Date(message.timestamp).toLocaleString()}
-                                                        </p>
                                                     </div>
                                                 </li>
-                                            )
+                                            );
                                         })}
                                     </ul>
                                 </ScrollArea>
