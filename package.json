@@ -10,6 +10,7 @@
     "postinstall": "prisma generate --no-engine"
   },
   "dependencies": {
+    "@auth/core": "^0.37.3",
     "@auth/prisma-adapter": "^2.7.3",
     "@prisma/client": "^5.22.0",
     "@prisma/extension-accelerate": "^1.2.1",
@@ -50,6 +51,7 @@
   },
   "pnpm": {
     "overrides": {
+      "@auth/core": "0.37.3",
       "@types/react": "npm:types-react@19.0.0-rc.1",
       "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1"
     }
