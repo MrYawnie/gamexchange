@@ -52,8 +52,10 @@ const DashboardClient = () => {
             });
 
             if (response.ok) {
-                const newGroup = await response.json();
-                setUserGroups((prev) => [...prev, newGroup]);
+                const { group, message } = await response.json(); // Destructure response
+                console.log('Created group:', group); // Log only the group data
+                console.log('Message:', message); // Optionally log the message
+                setUserGroups((prev) => [...prev, group]);
                 setNewGroupName('');
             } else {
                 const errorData = await response.json();
@@ -74,6 +76,7 @@ const DashboardClient = () => {
 
             if (response.ok) {
                 const joinedGroup = await response.json();
+                console.log('Joined group:', joinedGroup);
                 setUserGroups((prev) => [...prev, joinedGroup]);
                 setJoinGroupId('');
             } else {
