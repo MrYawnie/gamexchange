@@ -40,5 +40,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     redirect: async ({ url, baseUrl }) => {
       return url.startsWith(baseUrl) ? `${baseUrl}/dashboard` : baseUrl
     }
+  },
+  pages: {
+    signIn: '/signin',
   }
 })
