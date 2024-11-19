@@ -4,7 +4,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Clock, Users, Star } from "lucide-react"
 import Image from "next/image"
 import { GameData } from "@/types/gameTypes"
-import { AnimatePresence, motion } from 'framer-motion';
 
 export default function Component(props: { game: GameData }) {
     const { game } = props
