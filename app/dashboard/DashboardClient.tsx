@@ -11,6 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useRouter, useSearchParams } from 'next/navigation'; // Import useSearchParams
 import { AnimatePresence, motion } from 'framer-motion';
+import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 const DashboardClient = () => {
     const router = useRouter();
@@ -21,6 +22,8 @@ const DashboardClient = () => {
     const [joinError, setJoinError] = useState('');
     const [activeGroup, setActiveGroup] = useState<{ id: string; name: string } | null>(null);
     const [accessDenied, setAccessDenied] = useState(false); // New state for access denial
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [groupToExit, setGroupToExit] = useState<string | null>(null); // New state to track which group to exit
 
     useEffect(() => {
         // Check for access_denied query parameter
@@ -97,6 +100,7 @@ const DashboardClient = () => {
     };
 
     const exitGroup = async (groupId: string) => {
+        setIsDialogOpen(false);
         const response = await fetch(`/api/groups/${groupId}`, {
             method: 'DELETE',
         });
@@ -115,6 +119,11 @@ const DashboardClient = () => {
     const enterGroup = (group: { id: string; name: string }) => {
         // Redirect to the group/[id]/page.tsx with the group's ID
         router.push(`/group/${group.id}`);
+    };
+
+    const handleExitGroup = (groupId: string) => {
+        setGroupToExit(groupId);
+        setIsDialogOpen(true);
     };
 
     // Variants for parent <ul>
@@ -204,7 +213,7 @@ const DashboardClient = () => {
                                                     <ArrowRightIcon className="mr-2 h-4 w-4" />
                                                     Enter
                                                 </Button>
-                                                <Button variant="outline" size="sm" onClick={() => exitGroup(group.id)}>
+                                                <Button variant="outline" size="sm" onClick={() => handleExitGroup(group.id)}>
                                                     <LogOutIcon className="mr-2 h-4 w-4" />
                                                     Exit
                                                 </Button>
@@ -281,6 +290,27 @@ const DashboardClient = () => {
                     </TabsContent>
                 </Tabs>
             </div>
+
+            {/* AlertDialog outside of the list */}
+            <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Confirm Exit</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to leave the group?
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="destructive" onClick={() => groupToExit && exitGroup(groupToExit)}>
+                            <LogOutIcon className="mr-2 h-4 w-4" />
+                            Leave
+                        </Button>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 };

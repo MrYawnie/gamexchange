@@ -13,6 +13,7 @@ import { Message } from '@prisma/client/edge';
 import GroupGames from '../group-games';
 import { GroupGame } from '../../types/gameTypes';
 import { useRouter } from 'next/navigation';
+import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 export function GroupDashboardClient({
     users,
@@ -33,6 +34,7 @@ export function GroupDashboardClient({
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const [newMessage, setNewMessage] = useState('');
     const [messages, setMessages] = useState<Message[]>(initialMessages);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     useEffect(() => {
         // Set up the mutation observer to watch for changes in the messages list
@@ -86,13 +88,13 @@ export function GroupDashboardClient({
     };
 
     const handleBack = () => {
-        router.back();
+        // router.back();
+        router.push('/dashboard');
+        
     };
 
     const handleExitGroup = async () => {
-        const confirmed = confirm('Are you sure you want to leave the group?');
-        if (!confirmed) return;
-
+        setIsDialogOpen(false);
         const response = await fetch(`/api/groups/${groupId}`, { method: 'DELETE' });
         if (response.ok) {
             router.push('/dashboard');
@@ -110,10 +112,34 @@ export function GroupDashboardClient({
                     <h1 className="text-2xl font-bold my-1">{groupName} Dashboard</h1>
                     <h4 className="text-lg font-semibold my-1">Group ID: {groupId}</h4>
                 </div>
-                <Button variant="outline" onClick={handleExitGroup}>
+                {/* <Button variant="outline" onClick={handleExitGroup}>
                     Leave group
                     <LogOut className="ml-2 h-4 w-4" />
-                </Button>
+                </Button> */}
+                <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <AlertDialogTrigger asChild>
+                        <Button variant="outline">
+                            Leave group
+                            <LogOut className="ml-2 h-4 w-4" />
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Confirm Exit</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Are you sure you want to leave the group?
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                                Cancel
+                            </Button>
+                            <Button variant="destructive" onClick={handleExitGroup}>
+                                Leave
+                            </Button>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </div>
             <Tabs defaultValue="chat">
                 <TabsList className="grid w-full grid-cols-2 mb-4">
