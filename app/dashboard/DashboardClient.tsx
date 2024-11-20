@@ -10,6 +10,7 @@ import { PlusCircleIcon, UserPlusIcon, LogOutIcon, ArrowRightIcon } from 'lucide
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useRouter } from 'next/navigation';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const DashboardClient = () => {
     const router = useRouter();
@@ -107,6 +108,34 @@ const DashboardClient = () => {
         router.push(`/group/${group.id}`);
     };
 
+    // Variants for parent <ul>
+    const listVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.3, // Adjusted for noticeable stagger
+                delayChildren: 0.2,   // Delay before staggering starts
+                duration: 0.3,
+            },
+        },
+    };
+
+    // Variants for child <li>
+    const itemVariants = {
+        hidden: { opacity: 0, y: -20 }, // Larger y-offset for clarity
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: { duration: 0.6 }, // Entry animation
+        },
+        exit: {
+            opacity: 0,
+            x: -50, // Animate item out to the left
+            transition: { duration: 0.6 }, // Exit duration
+        },
+    };
+
     return (
         <div className="container mx-auto p-4">
             <div className="flex justify-between items-center mb-6">
@@ -120,28 +149,46 @@ const DashboardClient = () => {
                     </CardHeader>
                     <CardContent>
                         {userGroups.length > 0 ? (
-                            <ul className="space-y-2">
-                                {userGroups.map((group) => (
-                                    <li key={group.id} className="bg-muted p-2 rounded-md flex justify-between items-center">
-                                        <span>
-                                            {group.name} <span className="text-muted-foreground text-sm">(ID: {group.id})</span>
-                                        </span>
-                                        <div className="space-x-2">
-                                            <Button variant="outline" size="sm" onClick={() => enterGroup(group)}>
-                                                <ArrowRightIcon className="mr-2 h-4 w-4" />
-                                                Enter
-                                            </Button>
-                                            <Button variant="outline" size="sm" onClick={() => exitGroup(group.id)}>
-                                                <LogOutIcon className="mr-2 h-4 w-4" />
-                                                Exit
-                                            </Button>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
+                            <motion.ul
+                                className="group-list space-y-2"
+                                variants={listVariants} // Parent stagger animations
+                                initial="hidden"
+                                animate="visible"
+                            >
+                                <AnimatePresence>
+                                    {userGroups.map((group) => (
+                                        <motion.li
+                                            key={group.id} // This must be unique to track removal
+                                            className="bg-muted p-2 rounded-md flex justify-between items-center"
+                                            variants={itemVariants} // Child animation variants
+                                            initial="hidden" // Ensure items start hidden
+                                            animate="visible" // Trigger entry animation
+                                            exit="exit" // Trigger exit animation
+                                            layout // Smooth layout animations
+                                            whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
+                                        >
+                                            <span>
+                                                {group.name} <span className="text-muted-foreground text-sm">(ID: {group.id})</span>
+                                            </span>
+                                            <div className="space-x-2">
+                                                <Button variant="outline" size="sm" onClick={() => enterGroup(group)}>
+                                                    <ArrowRightIcon className="mr-2 h-4 w-4" />
+                                                    Enter
+                                                </Button>
+                                                <Button variant="outline" size="sm" onClick={() => exitGroup(group.id)}>
+                                                    <LogOutIcon className="mr-2 h-4 w-4" />
+                                                    Exit
+                                                </Button>
+                                            </div>
+                                        </motion.li>
+                                    ))}
+                                </AnimatePresence>
+                            </motion.ul>
+
                         ) : (
                             <p className="text-muted-foreground">You are not a member of any groups yet.</p>
                         )}
+
                     </CardContent>
                 </Card>
 

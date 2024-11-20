@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
 import { GameListProps } from '@/types/gameTypes';
 import BGGLoginDialog from "@/components/bgg-login";
+import { motion } from 'framer-motion';
 
 export default function GameList({ games, errorMessage, bggUserId }: GameListProps) {
     const [retryMessage, setRetryMessage] = useState<string | null>(null);
@@ -55,8 +56,15 @@ export default function GameList({ games, errorMessage, bggUserId }: GameListPro
             {retryMessage && <p className="text-red-500">{retryMessage}</p>}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
                 {games.length > 0 ? (
-                    games.map((userGame) => (
-                        <GameCard key={userGame.game.gameId} game={userGame.game} />
+                    games.map((userGame, index) => (
+                        <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.2 }}
+                            className="h-full">
+                            <GameCard key={userGame.game.gameId} game={userGame.game} />
+                        </motion.div>
                     ))
                 ) : (
                     <p>No games found.</p>

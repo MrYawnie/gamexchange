@@ -10,7 +10,7 @@ export default function Component(props: { game: GameData }) {
     const isExpansion = game.objectType === "boardgameexpansion"
 
     return (
-        <Card className="w-[300px] overflow-hidden">
+        <Card whileHover={{ scale: 1.05, transition: { duration: 0.2 } }} className="w-[300px] overflow-hidden">
             <div className="aspect-[16/9] relative">
                 <Image
                     src={game.image}
