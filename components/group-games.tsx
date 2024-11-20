@@ -12,7 +12,7 @@ export default function GroupGames({ games: initialGames, currentUserId, groupId
     const [games, setGames] = useState(initialGames);
 
     // Handler that will update the game's loan status in the state
-    const handleLoanStatusChange = (updatedGameId: string, isLoaned: boolean, borrowerId?: string) => {
+    const handleLoanStatusChange = (updatedGameId: string, isLoaned: boolean, userGameId: string) => {
         setGames(prevGames =>
             prevGames.map(game =>
                 game.game.gameId === updatedGameId
@@ -21,7 +21,7 @@ export default function GroupGames({ games: initialGames, currentUserId, groupId
                         availableCount: isLoaned ? game.availableCount - 1 : game.availableCount + 1,
                         loanedCount: isLoaned ? game.loanedCount + 1 : game.loanedCount - 1,
                         userGames: (game.userGames ?? []).map(userGame =>
-                            userGame.userGameId === borrowerId
+                            userGame.userGameId === userGameId
                                 ? { ...userGame, isLoaned: isLoaned }
                                 : userGame
                         ),
@@ -31,6 +31,7 @@ export default function GroupGames({ games: initialGames, currentUserId, groupId
         );
     };
     
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const columns: ColumnDef<any>[] = [
         {
             header: 'Game',

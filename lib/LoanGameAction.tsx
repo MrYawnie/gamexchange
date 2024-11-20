@@ -1,11 +1,30 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
-import { LoanGameActionProps, UserGame } from '@/types/gameTypes';
+import { LoanGameActionProps } from '@/types/gameTypes';
 
 const LoanGameAction = ({ game, users, groupId, currentUserId, userGameId, onLoanStatusChange, isLoaned }: LoanGameActionProps) => {
     const [borrowerId, setBorrowerId] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [currentLoanId, setCurrentLoanId] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (isLoaned && !currentLoanId) {
+            // Find the active loan for this userGame
+            const activeLoan = game.loans?.find(
+                (loan) =>
+                    loan.userGameId === userGameId &&
+                    loan.lenderId === currentUserId &&
+                    loan.endDate === null
+            );
+
+            if (activeLoan) {
+                setCurrentLoanId(activeLoan.id);
+            } else {
+                console.error('No active loan found for this game.');
+            }
+        }
+    }, [isLoaned, currentLoanId, game.loans, userGameId, currentUserId]);
 
     const loanGame = async () => {
         if (!borrowerId) return;
@@ -27,7 +46,11 @@ const LoanGameAction = ({ game, users, groupId, currentUserId, userGameId, onLoa
             setIsSubmitting(false);
 
             if (response.ok) {
-                onLoanStatusChange(game.game.gameId, true, borrowerId);
+                const data = await response.json();
+                const loan = data.loan;
+                setCurrentLoanId(loan.id);
+                // Update your frontend state
+                onLoanStatusChange(game.game.gameId, true, userGameId);
             } else {
                 console.error("Failed to loan the game");
             }
@@ -39,26 +62,28 @@ const LoanGameAction = ({ game, users, groupId, currentUserId, userGameId, onLoa
 
     const endLoan = async () => {
         setIsSubmitting(true);
-
+    
         try {
-            const lastLoan = game.loans?.findLast(loan => loan.endDate === null && loan.lenderId === currentUserId);
-            if (!lastLoan) {
+            if (!currentLoanId) {
                 console.error("No active loan found");
+                setIsSubmitting(false);
                 return;
             }
-
-            const response = await fetch(`/api/loans`, {
+    
+            // Send PATCH request to API endpoint with loan ID
+            const response = await fetch(`/api/loans/${currentLoanId}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    lastLoan
+                    endDate: new Date().toISOString(),
                 }),
             });
-
+    
             setIsSubmitting(false);
-
+    
             if (response.ok) {
-                onLoanStatusChange(game.game.gameId, false, lastLoan.borrowerId);
+                onLoanStatusChange(game.game.gameId, false, userGameId);
+                setCurrentLoanId(null); // Reset the loan ID
             } else {
                 console.error("Failed to end the loan");
             }

@@ -9,26 +9,36 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlusCircleIcon, UserPlusIcon, LogOutIcon, ArrowRightIcon } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation'; // Import useSearchParams
 import { AnimatePresence, motion } from 'framer-motion';
 
 const DashboardClient = () => {
     const router = useRouter();
+    const searchParams = useSearchParams(); // Initialize searchParams
     const [userGroups, setUserGroups] = useState<{ id: string; name: string }[]>([]);
     const [newGroupName, setNewGroupName] = useState('');
     const [joinGroupId, setJoinGroupId] = useState('');
     const [joinError, setJoinError] = useState('');
     const [activeGroup, setActiveGroup] = useState<{ id: string; name: string } | null>(null);
+    const [accessDenied, setAccessDenied] = useState(false); // New state for access denial
 
     useEffect(() => {
+        // Check for access_denied query parameter
+        if (searchParams.get('error') === 'access_denied') {
+            setAccessDenied(true);
+            // Optionally, remove the query parameter after displaying the alert
+            const url = new URL(window.location.href);
+            url.searchParams.delete('error');
+            window.history.replaceState({}, document.title, url.toString());
+        }
+
         // Fetch all groups and user groups from the API on component mount
         const fetchGroups = async () => {
             try {
                 const response = await fetch('/api/groups');
 
                 if (!response.ok) {
-                    // If the response is not OK, throw an error with status code and message
-                    const errorData = await response.json(); // This might fail if the response is not JSON
+                    const errorData = await response.json();
                     throw new Error(`Error ${response.status}: ${errorData.error || 'Unknown error'}`);
                 }
 
@@ -36,12 +46,11 @@ const DashboardClient = () => {
                 setUserGroups(data.userGroups);
             } catch (error) {
                 console.error('Failed to fetch groups:', error);
-                // You can set some state to display an error message to the user if needed
             }
         };
 
         fetchGroups();
-    }, []);
+    }, [searchParams]);
 
     const createGroup = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -53,9 +62,9 @@ const DashboardClient = () => {
             });
 
             if (response.ok) {
-                const { group, message } = await response.json(); // Destructure response
-                console.log('Created group:', group); // Log only the group data
-                console.log('Message:', message); // Optionally log the message
+                const { group, message } = await response.json();
+                console.log('Created group:', group);
+                console.log('Message:', message);
                 setUserGroups((prev) => [...prev, group]);
                 setNewGroupName('');
             } else {
@@ -114,8 +123,8 @@ const DashboardClient = () => {
         visible: {
             opacity: 1,
             transition: {
-                staggerChildren: 0.3, // Adjusted for noticeable stagger
-                delayChildren: 0.2,   // Delay before staggering starts
+                staggerChildren: 0.3,
+                delayChildren: 0.2,
                 duration: 0.3,
             },
         },
@@ -123,16 +132,16 @@ const DashboardClient = () => {
 
     // Variants for child <li>
     const itemVariants = {
-        hidden: { opacity: 0, y: -20 }, // Larger y-offset for clarity
+        hidden: { opacity: 0, y: -20 },
         visible: {
             opacity: 1,
             y: 0,
-            transition: { duration: 0.6 }, // Entry animation
+            transition: { duration: 0.6 },
         },
         exit: {
             opacity: 0,
-            x: -50, // Animate item out to the left
-            transition: { duration: 0.6 }, // Exit duration
+            x: -50,
+            transition: { duration: 0.6 },
         },
     };
 
@@ -141,6 +150,26 @@ const DashboardClient = () => {
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">Dashboard</h1>
             </div>
+
+            {/* Display Access Denied Alert */}
+            <AnimatePresence>
+                {accessDenied && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.5 }}
+                        className="mb-4"
+                    >
+                        <Alert variant="destructive">
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertTitle>Access Denied</AlertTitle>
+                            <AlertDescription>You do not have permission to access this group.</AlertDescription>
+                        </Alert>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <div className="grid gap-6 md:grid-cols-2">
                 <Card>
                     <CardHeader>
@@ -151,20 +180,20 @@ const DashboardClient = () => {
                         {userGroups.length > 0 ? (
                             <motion.ul
                                 className="group-list space-y-2"
-                                variants={listVariants} // Parent stagger animations
+                                variants={listVariants}
                                 initial="hidden"
                                 animate="visible"
                             >
                                 <AnimatePresence>
                                     {userGroups.map((group) => (
                                         <motion.li
-                                            key={group.id} // This must be unique to track removal
+                                            key={group.id}
                                             className="bg-muted p-2 rounded-md flex justify-between items-center"
-                                            variants={itemVariants} // Child animation variants
-                                            initial="hidden" // Ensure items start hidden
-                                            animate="visible" // Trigger entry animation
-                                            exit="exit" // Trigger exit animation
-                                            layout // Smooth layout animations
+                                            variants={itemVariants}
+                                            initial="hidden"
+                                            animate="visible"
+                                            exit="exit"
+                                            layout
                                             whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
                                         >
                                             <span>
@@ -184,11 +213,9 @@ const DashboardClient = () => {
                                     ))}
                                 </AnimatePresence>
                             </motion.ul>
-
                         ) : (
                             <p className="text-muted-foreground">You are not a member of any groups yet.</p>
                         )}
-
                     </CardContent>
                 </Card>
 
