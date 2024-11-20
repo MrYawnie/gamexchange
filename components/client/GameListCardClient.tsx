@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
 import { GameListProps } from '@/types/gameTypes';
 import BGGLoginDialog from "@/components/bgg-login";
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 export default function GameList({ games, errorMessage, bggUserId }: GameListProps) {
     const [retryMessage, setRetryMessage] = useState<string | null>(null);

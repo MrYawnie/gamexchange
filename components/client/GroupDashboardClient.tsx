@@ -35,33 +35,27 @@ export function GroupDashboardClient({
     const [messages, setMessages] = useState<Message[]>(initialMessages);
 
     useEffect(() => {
-        if (scrollAreaRef.current) {
-            scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
-        }
-    }, [messages]);
+        // Set up the mutation observer to watch for changes in the messages list
+        const scrollArea = scrollAreaRef.current;
+        if (!scrollArea) return;
 
-    useEffect(() => {
-        const intervalId = setInterval(fetchMessages, 10000); // Fetch messages every 5 seconds
-        return () => clearInterval(intervalId);
-    }, []);
+        const viewport = scrollArea.querySelector('[data-radix-scroll-area-viewport]');
+        if (!viewport) return;
 
-    const fetchMessages = async () => {
-        try {
-            const response = await fetch(`/api/messages?groupId=${groupId}`, {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
-            });
-    
-            if (response.ok) {
-                const newMessages = await response.json();
-                setMessages(newMessages);
-            } else {
-                console.error('Failed to fetch messages:', response.statusText);
-            }
-        } catch (error) {
-            console.error('Error fetching messages:', error);
-        }
-    };
+        const observer = new MutationObserver(() => {
+            viewport.scrollTop = viewport.scrollHeight;
+        });
+
+        observer.observe(viewport, {
+            childList: true,
+            subtree: true
+        });
+
+        // Initial scroll
+        viewport.scrollTop = viewport.scrollHeight;
+
+        return () => observer.disconnect();
+    }, []); // Empty dependency array since we want to set this up once
 
     const sendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
