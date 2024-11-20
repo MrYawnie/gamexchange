@@ -82,8 +82,10 @@ export interface UserProps {
 
 export interface LoanGameActionProps {
     game: UserGame; // GroupGame interface includes game details, loan status, etc.
+    isLoaned: boolean;
     users?: User[]; // List of users in the group
     groupId?: string; // The current group ID
     currentUserId: string; // ID of the current logged-in user
     userGameId: string; // The specific user's game instance ID
+    onLoanStatusChange: (gameId: string, isLoaned: boolean, borrowerId: string) => void; // Function to handle loan status change
 }

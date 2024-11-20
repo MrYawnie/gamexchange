@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -5,10 +6,31 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { GameListProps, UserGame } from '@/types/gameTypes';
 import LoanGameAction from '../lib/LoanGameAction';
 import { useReactTable, getCoreRowModel, getExpandedRowModel, ColumnDef } from '@tanstack/react-table';
-import React from "react";
 
-export default function GroupGames({ games, currentUserId, groupId, users }: GameListProps) {
-    console.log('Group Games:', games);
+export default function GroupGames({ games: initialGames, currentUserId, groupId, users }: GameListProps) {
+    // Initialize games state at the top of the component
+    const [games, setGames] = useState(initialGames);
+
+    // Handler that will update the game's loan status in the state
+    const handleLoanStatusChange = (updatedGameId: string, isLoaned: boolean, userGameId: string) => {
+        setGames(prevGames =>
+            prevGames.map(game =>
+                game.game.gameId === updatedGameId
+                    ? {
+                        ...game,
+                        availableCount: isLoaned ? game.availableCount - 1 : game.availableCount + 1,
+                        loanedCount: isLoaned ? game.loanedCount + 1 : game.loanedCount - 1,
+                        userGames: (game.userGames ?? []).map(userGame =>
+                            userGame.userGameId === userGameId
+                                ? { ...userGame, isLoaned: isLoaned }
+                                : userGame
+                        ),
+                    }
+                    : game
+            )
+        );
+    };
+    
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const columns: ColumnDef<any>[] = [
         {
@@ -16,23 +38,20 @@ export default function GroupGames({ games, currentUserId, groupId, users }: Gam
             accessorKey: 'game.name',
             cell: ({ row, getValue }) => {
                 const isExpanded = row.getIsExpanded();
-                const subItemsCount = row.original.userGames.length; // Adjust this based on where your sub-items are stored
-                const canExpand = subItemsCount > 1; // Allow expansion only if there are more than 1 sub-item
-
-                console.log('Row:', row, 'Game Name:', getValue(), 'Is Expanded:', isExpanded, 'Can Expand:', canExpand);
+                const subItemsCount = row.original.userGames.length;
+                const canExpand = subItemsCount > 1;
 
                 return (
                     <span
                         onClick={canExpand ? () => row.toggleExpanded() : undefined}
                         className={`cursor-pointer ${canExpand ? 'text-blue-600' : ''}`}
                     >
-                        {getValue() as React.ReactNode}
+                        {getValue() as string}
                         {canExpand && (isExpanded ? ' ▲' : ' ▼')}
                     </span>
                 );
             },
         },
-
         {
             header: 'Type',
             accessorKey: 'game.objectType',
@@ -81,28 +100,29 @@ export default function GroupGames({ games, currentUserId, groupId, users }: Gam
                 );
             },
         },
-
         {
             header: 'Action',
             cell: ({ row }) => {
-                // Find the userGame associated with the current user
                 const userGame = row.original.userGames.find((game: UserGame) => game.user.id === currentUserId);
+                const isLoaned = userGame ? userGame.isLoaned : false;
 
-                // Render LoanGameAction if the userGame exists
+                // Render LoanGameAction only if the userGame exists
                 return userGame ? (
                     <LoanGameAction
                         game={row.original}
+                        isLoaned={isLoaned}
                         users={users}
                         groupId={groupId}
                         currentUserId={currentUserId}
-                        userGameId={userGame.userGameId} // Use the correct userGameId here
+                        userGameId={userGame.userGameId}
+                        onLoanStatusChange={handleLoanStatusChange}  // Pass the handler here
                     />
                 ) : null;
             },
         },
-
     ];
 
+    // Create table instance using React Table
     const table = useReactTable({
         data: games,
         columns,
@@ -124,50 +144,57 @@ export default function GroupGames({ games, currentUserId, groupId, users }: Gam
                                     <TableHead key={index}>{column.header as React.ReactNode}</TableHead>
                                 ))}
                             </TableRow>
-
                         </TableHeader>
                         <TableBody>
                             {table.getRowModel().rows.map((row) => (
                                 <React.Fragment key={row.id}>
-                                    <TableRow key={row.id}>
-                                        {row.getVisibleCells().map(cell => (
-                                            <TableCell key={cell.id}>
+                                    <TableRow>
+                                        {row.getVisibleCells().map((cell, idx) => (
+                                            <TableCell key={idx}>
                                                 {typeof cell.column.columnDef.cell === 'function'
                                                     ? cell.column.columnDef.cell(cell.getContext())
                                                     : cell.getValue()}
                                             </TableCell>
                                         ))}
                                     </TableRow>
-                                    {row.getIsExpanded() && row.original.userGames.map((userGame: UserGame) => (
-                                        <TableRow key={userGame.userGameId} className="pl-4">
-                                            <TableCell></TableCell>
-                                            <TableCell></TableCell>
-                                            <TableCell></TableCell>
-                                            <TableCell></TableCell>
-                                            <TableCell>
-                                                <Avatar key={userGame.user.id} className="h-6 w-6">
-                                                    <AvatarImage src={userGame.user.image || ''} alt={userGame.user.name || 'User'} />
-                                                    <AvatarFallback>{userGame.user.name?.charAt(0)}</AvatarFallback>
-                                                </Avatar>
-                                            </TableCell>
-                                            <TableCell>
-                                                <span className={userGame.isLoaned ? 'text-red-500' : 'text-green-500'}>
-                                                    {userGame.isLoaned ? 'Loaned' : 'Available'}
-                                                </span>
-                                            </TableCell>
-                                            <TableCell>
-                                                {userGame.user.id === currentUserId && (
-                                                    <LoanGameAction
-                                                        game={row.original}
-                                                        users={users}
-                                                        groupId={groupId}
-                                                        currentUserId={currentUserId}
-                                                        userGameId={userGame.userGameId}
-                                                    />
-                                                )}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
+                                    {row.getIsExpanded() &&
+                                        row.original.userGames.map((userGame: UserGame) => (
+                                            <TableRow key={userGame.userGameId} className="pl-4">
+                                                <TableCell></TableCell>
+                                                <TableCell></TableCell>
+                                                <TableCell></TableCell>
+                                                <TableCell></TableCell>
+                                                <TableCell>
+                                                    <Avatar key={userGame.user.id} className="h-6 w-6">
+                                                        <AvatarImage
+                                                            src={userGame.user.image || ''}
+                                                            alt={userGame.user.name || 'User'}
+                                                        />
+                                                        <AvatarFallback>{userGame.user.name?.charAt(0)}</AvatarFallback>
+                                                    </Avatar>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <span 
+                                                        className={userGame.isLoaned ? 'text-red-500' : 'text-green-500'}
+                                                    >
+                                                        {userGame.isLoaned ? 'Loaned' : 'Available'}
+                                                    </span>
+                                                </TableCell>
+                                                <TableCell>
+                                                    {userGame.user.id === currentUserId && (
+                                                        <LoanGameAction
+                                                            game={row.original}
+                                                            isLoaned={userGame.isLoaned}
+                                                            users={users}
+                                                            groupId={groupId}
+                                                            currentUserId={currentUserId}
+                                                            userGameId={userGame.userGameId}
+                                                            onLoanStatusChange={handleLoanStatusChange}
+                                                        />
+                                                    )}
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
                                 </React.Fragment>
                             ))}
                         </TableBody>
