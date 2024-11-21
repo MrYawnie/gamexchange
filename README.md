@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GameXchange
 
-## Getting Started
+Welcome to **GameXchange**, your go-to hub for board game enthusiasts! This project allows users to connect, share, and manage board game collections with friends and family through private groups.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Private Game Groups**: Create and join exclusive groups to manage and share your board game collections.
+- **BoardGameGeek Integration**: Sync your BoardGameGeek account to easily view what games your group owns.
+- **Easy Game Loans**: Initiate and track loans of games within your group seamlessly.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Screenshots
+![Dashboard Screenshot](/public/dashboard.png)
+![Collection Screenshot](/public/splash-collection.png)
+![Loan Screenshot](/public/group-loan.png)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Usage
+### Signing In
+Users can sign in using:
 
-## Learn More
+- **Google**
+- **GitHub**
+- **Email** (magic link)
 
-To learn more about Next.js, take a look at the following resources:
+The sign-in process is straightforward, with clear buttons provided for each authentication method.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Carousel Showcase
+The home page includes a carousel showcasing the main features of the application. Users can navigate through features seamlessly.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Connecting with Friends
+Once signed in, users can create private groups, add friends, and start sharing games.
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Tech Stack
+- **Frontend**: Next.js, React
+- **Authentication**: Auth.js
+- **Styling**: Tailwind CSS and shadcn/ui components
+- **Images**: Lucide Icons
+- **Carousel**: Embla Carousel
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Contributing
+We welcome contributions! If you'd like to help out, please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature/YourFeature`).
+3. Make your changes and commit them (``git commit -m 'Add some feature'``).
+4. Push to the branch (``git push origin feature/YourFeature``).
+5. Open a pull request.
+
+## License
+To be decided...
