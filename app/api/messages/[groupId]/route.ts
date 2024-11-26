@@ -2,14 +2,14 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/prisma';
 import { auth } from '@/auth';
 
-export async function GET(req: Request, context: { params: { groupId: string } }) {
-    const { params } = context;
-    const { groupId } = await params; // Await params to handle the asynchronous API
-
+export async function GET(request: Request, props: { params: Promise<{ groupId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (!session || !session.user) {
         return NextResponse.json({ error: 'You are not logged in.' }, { status: 401 });
     }
+    const { groupId } = params; // Access params directly without await
+
 
     if (!groupId) {
         return NextResponse.json({ message: 'groupId is required' }, { status: 400 });
