@@ -87,6 +87,32 @@ export function GroupDashboardClient({
         }
     };
 
+    useEffect(() => {
+        // Fetch messages from the API
+        const fetchMessages = async () => {
+            try {
+                const response = await fetch(`/api/messages/${groupId}`);
+                if (response.ok) {
+                    const newMessages = await response.json();
+                    setMessages(newMessages);
+                } else {
+                    console.error('Failed to fetch messages:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error fetching messages:', error);
+            }
+        };
+    
+        // Initial fetch
+        fetchMessages();
+    
+        // Set up an interval to fetch messages every 5 seconds
+        const interval = setInterval(fetchMessages, 5000);
+    
+        // Clean up interval on component unmount
+        return () => clearInterval(interval);
+    }, [groupId]);
+
     const handleBack = () => {
         // router.back();
         router.push('/dashboard');
