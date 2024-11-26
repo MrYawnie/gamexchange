@@ -10,8 +10,8 @@ import { SendIcon, ArrowLeftIcon, LogOut } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User } from '@prisma/client';
 import { Message } from '@prisma/client/edge';
-import GroupGames from '../group-games';
-import { GroupGame } from '../../types/gameTypes';
+import GroupGames from './GroupGamesTable';
+import { GroupGame } from '@/types/gameTypes';
 import { useRouter } from 'next/navigation';
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 

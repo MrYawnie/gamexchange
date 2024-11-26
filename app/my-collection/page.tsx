@@ -1,4 +1,4 @@
-import GameLibrary from "@/components/server/gamelist-server";
+import GameLibrary from "@/components/GameListServer";
 
 export default async function Page() {
 

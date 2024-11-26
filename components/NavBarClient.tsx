@@ -2,8 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { SignOut } from "@/components/signout-button"
-import { BGGUser } from '../user-avatar'
+import { SignOut } from "@/components/SignOutButton"
+import { BGGUser } from "@/components/UserAvatars"
 import { Home, SquareLibrary, Dices } from 'lucide-react'
 import { UserProps } from '@/types/gameTypes'
 

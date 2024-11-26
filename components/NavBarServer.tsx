@@ -1,6 +1,6 @@
 // Server-side component for fetching the user
 import { auth } from "@/auth";
-import NavBarClient from '../client/NavBarClient'; // separate client-side navbar logic
+import NavBarClient from './NavBarClient'; // separate client-side navbar logic
 
 export default async function NavBarServer() {
   const session = await auth();

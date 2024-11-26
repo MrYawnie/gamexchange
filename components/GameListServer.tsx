@@ -1,6 +1,6 @@
 import { prisma } from '@/prisma';
 import { auth } from '@/auth';
-import GameList from '../client/GameListCardClient'; // Client component
+import GameList from '../app/my-collection/GameListCardClient'; // Client component
 
 export default async function GameLibrary() {
     const session = await auth();
