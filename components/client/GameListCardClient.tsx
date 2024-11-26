@@ -43,7 +43,7 @@ export default function GameList({ games, errorMessage, bggUserId }: GameListPro
     };
 
     return (
-        <div>
+        <div className="flex flex-col gap-2">
             <h1 className="text-center mb-4 text-2xl">My Game Collection</h1>
             {!bggUserId ? (
                 <BGGLoginDialog />
@@ -67,7 +67,7 @@ export default function GameList({ games, errorMessage, bggUserId }: GameListPro
                         </motion.div>
                     ))
                 ) : (
-                    <p>No games found.</p>
+                    <p className="text-center">No games found.</p>
                 )}
             </div>
         </div>
