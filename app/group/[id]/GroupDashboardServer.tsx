@@ -1,8 +1,8 @@
 // app/GroupDashboard.tsx (Server Component)
-import { GroupDashboardClient } from '../client/GroupDashboardClient';
+import { GroupDashboardClient } from './GroupDashboardClient';
 import { prisma } from '@/prisma'; // Adjust this import according to your project structure
 import { auth } from '@/auth';
-import { GroupGame } from '../../types/gameTypes'; // Importing the GroupGame type
+import { GroupGame } from '@/types/gameTypes'; // Importing the GroupGame type
 
 interface GroupDashboardProps {
     groupId: string;

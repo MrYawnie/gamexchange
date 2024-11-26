@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import { getUser } from "@/lib/signout-action"
-import BGGLoginDialog from "@/components/bgg-login";
+import BGGLoginDialog from "@/components/BGGLoginForm";
 import { UserProps } from '@/types/gameTypes'
 
 export default async function UserAvatar() {

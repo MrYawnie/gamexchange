@@ -1,5 +1,5 @@
 // app/group/[id]/page.tsx
-import GroupDashboardServer from '@/components/server/GroupDashboardServer';
+import GroupDashboardServer from './GroupDashboardServer';
 import { prisma } from '@/prisma';
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation'; // Import redirect

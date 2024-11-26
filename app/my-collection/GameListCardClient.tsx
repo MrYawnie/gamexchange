@@ -1,11 +1,11 @@
 "use client"; // Mark this as a Client Component
 
 import React, { useState } from 'react';
-import GameCard from '../game-card';
+import GameCard from '../../components/GameCard';
 import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
 import { GameListProps } from '@/types/gameTypes';
-import BGGLoginDialog from "@/components/bgg-login";
+import BGGLoginDialog from "@/components/BGGLoginForm";
 import { motion } from 'framer-motion';
 
 export default function GameList({ games, errorMessage, bggUserId }: GameListProps) {

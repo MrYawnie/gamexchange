@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { GameListProps, UserGame } from '@/types/gameTypes';
-import LoanGameAction from '../lib/LoanGameAction';
+import LoanGameAction from '../../../lib/LoanGameAction';
 import { useReactTable, getCoreRowModel, getExpandedRowModel, ColumnDef } from '@tanstack/react-table';
 
 export default function GroupGames({ games: initialGames, currentUserId, groupId, users }: GameListProps) {

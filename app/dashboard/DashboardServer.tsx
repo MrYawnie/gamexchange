@@ -1,5 +1,5 @@
 // app/dashboard/DashboardServer.tsx
-import GameLibrary from "@/components/server/gamelist-server";
+import GameLibrary from "@/components/GameListServer";
 import { auth } from '@/auth';
 
 const DashboardServer = async () => {
